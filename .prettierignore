@@ -1,0 +1,7 @@
+# Generated
+dist/
+.astro/
+.direnv/
+
+# Lockfiles are tool-owned; reformatting them creates noise and can break tooling
+pnpm-lock.yaml

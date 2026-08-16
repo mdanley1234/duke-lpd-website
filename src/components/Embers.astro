@@ -1,0 +1,166 @@
+---
+interface Props {
+  count?: number;
+  seed?: number;
+  class?: string;
+}
+
+const { count = 140, seed = 1, class: className } = Astro.props;
+
+// Seeded PRNG (mulberry32) so the field is deterministic, identical across pages,
+// builds, and dev reloads instead of reshuffling on navigation.
+function mulberry32(a: number) {
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rand = mulberry32(seed);
+
+// Weighted warm to cool rather than evenly sampled: a field of uniformly mixed
+// colour reads as confetti. Most embers sit at the accent orange, a few cool
+// toward peach, and a handful burn near-white — which is what gives the
+// impression of particles at different temperatures.
+const EMBER_COLORS = ["#ed6822", "#ff8a3d", "#ffb596", "#ffd9c2"];
+const pickColor = (t: number) =>
+  t < 0.46
+    ? EMBER_COLORS[0]
+    : t < 0.76
+      ? EMBER_COLORS[1]
+      : t < 0.93
+        ? EMBER_COLORS[2]
+        : EMBER_COLORS[3];
+
+// Overscan past the viewBox so the parallax shift never exposes a bare edge.
+const embers = Array.from({ length: count }, () => {
+  // Squared distribution keeps most embers small; without the bias an even
+  // spread of radii reads as evenly spaced dots rather than scattered sparks.
+  const size = Math.pow(rand(), 2.2);
+  const opacity = +(0.22 + rand() * 0.62).toFixed(2);
+  return {
+    x: +(rand() * 1040 - 20).toFixed(1),
+    y: +(rand() * 440 - 20).toFixed(1),
+    r: +(0.45 + size * 2.1).toFixed(2),
+    o: opacity,
+    c: pickColor(rand()),
+    // Bloom is tied to size rather than rolled separately, because a small
+    // particle with a large halo reads as a smudge, not as something hot.
+    glow: size > 0.62,
+  };
+});
+---
+
+<svg
+  class={className}
+  viewBox="0 0 1000 400"
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+>
+  <g class="ember-parallax">
+    <g class="ember-drift">
+      {
+        embers.map((e) => (
+          <Fragment>
+            {e.glow && (
+              <circle
+                cx={e.x}
+                cy={e.y}
+                r={+(e.r * 3.2).toFixed(2)}
+                fill={e.c}
+                opacity={+(e.o * 0.16).toFixed(3)}
+              />
+            )}
+            <circle cx={e.x} cy={e.y} r={e.r} fill={e.c} opacity={e.o} />
+          </Fragment>
+        ))
+      }
+    </g>
+  </g>
+</svg>
+
+<script>
+  const fields = document.querySelectorAll<SVGGElement>(".ember-parallax");
+  if (
+    fields.length > 0 &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    let tx = 0;
+    let ty = 0;
+    let cx = 0;
+    let cy = 0;
+    let raf = 0;
+
+    const paint = () => {
+      for (const g of fields) g.style.transform = `translate(${cx}px, ${cy}px)`;
+    };
+
+    const render = () => {
+      cx += (tx - cx) * 0.06;
+      cy += (ty - cy) * 0.06;
+      paint();
+      if (Math.abs(tx - cx) + Math.abs(ty - cy) > 0.05) {
+        raf = requestAnimationFrame(render);
+      } else {
+        raf = 0;
+      }
+    };
+
+    const setTarget = (clientX: number, clientY: number) => {
+      tx = (clientX / innerWidth - 0.5) * -16;
+      ty = (clientY / innerHeight - 0.5) * -10;
+    };
+
+    // The browser doesn't expose the cursor position without an event, so
+    // restore the last known position from the previous page and apply it
+    // immediately, keeping the parallax continuous across navigation.
+    const saved = sessionStorage.getItem("ember-mouse");
+    if (saved) {
+      const [x, y] = saved.split(",").map(Number);
+      if (Number.isFinite(x) && Number.isFinite(y)) {
+        setTarget(x, y);
+        cx = tx;
+        cy = ty;
+        paint();
+      }
+    }
+
+    window.addEventListener(
+      "mousemove",
+      (e) => {
+        setTarget(e.clientX, e.clientY);
+        sessionStorage.setItem("ember-mouse", `${e.clientX},${e.clientY}`);
+        if (raf === 0) raf = requestAnimationFrame(render);
+      },
+      { passive: true },
+    );
+  }
+</script>
+
+<style>
+  /* Drift lives on an inner group because the parallax writes an inline
+     transform to the outer one, and the two would otherwise overwrite each
+     other. Alternating rather than looping avoids a seam: random positions
+     can't wrap seamlessly, but a slow breath in and out never has to. */
+  .ember-drift {
+    animation: ember-drift 22s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  @keyframes ember-drift {
+    from {
+      transform: translateY(5px);
+    }
+    to {
+      transform: translateY(-5px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ember-drift {
+      animation: none;
+    }
+  }
+</style>

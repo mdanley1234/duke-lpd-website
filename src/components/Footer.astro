@@ -1,0 +1,95 @@
+---
+import { Image } from "astro:assets";
+import logo from "../assets/lpd-logo-1.png";
+
+const socials = [
+  { label: "Instagram", href: "https://www.instagram.com/duke_aero/" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/duke-aero-society/",
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/channel/UCooNA_Gx4-XZfQQfeg43qxA",
+  },
+];
+---
+
+<footer class="border-t border-white/10 bg-[#0b0b0d]">
+  <div class="mx-auto max-w-7xl px-6 py-14 md:px-12">
+    <a
+      href="https://dukerocketry.com"
+      target="_blank"
+      rel="noopener"
+      class="group block text-center"
+    >
+      <p
+        class="text-white font-display text-[clamp(22px,2.6vw,40px)] font-bold leading-tight"
+      >
+        Part of Duke AERO's SRAD rocketry program.
+      </p>
+      <p
+        class="mt-2 font-display text-sm text-accent-peach group-hover:underline"
+      >
+        See the full team → dukerocketry.com
+      </p>
+    </a>
+
+    <div
+      class="mt-12 flex flex-col items-center justify-between gap-8 border-t border-white/10 pt-10 md:flex-row md:items-start"
+    >
+      <div class="flex flex-col items-center gap-3 md:items-start">
+        <Image
+          src={logo}
+          alt="Duke AERO Liquid Propulsion Division"
+          width={127}
+          height={36}
+          densities={[1, 2, 3]}
+          class="h-8 w-auto invert"
+        />
+        <p class="max-w-[320px] text-center text-sm text-muted md:text-left">
+          Duke AERO's Liquid Propulsion Division: a student-built kerosene and
+          nitrous oxide engine with an in-house control system.
+        </p>
+      </div>
+
+      <nav class="flex gap-16">
+        <div class="flex flex-col gap-2">
+          <p
+            class="font-display text-xs font-bold uppercase tracking-[0.18em] text-white/60"
+          >
+            Connect
+          </p>
+          {
+            socials.map((social) => (
+              <a
+                href={social.href}
+                target="_blank"
+                rel="noopener"
+                class="footer-link"
+              >
+                {social.label}
+              </a>
+            ))
+          }
+        </div>
+      </nav>
+    </div>
+
+    <p class="mt-12 text-center text-xs text-white/60">
+      © {new Date().getFullYear()} Duke AERO
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer-link {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    transition: color 0.2s ease;
+  }
+
+  .footer-link:hover {
+    color: white;
+  }
+</style>

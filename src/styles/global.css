@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Self-hosted so type never waits on a third-party round trip. Each package
+   ships one variable file per subset, so the whole weight range costs less
+   than the static cuts it replaces. */
+@import "@fontsource-variable/space-grotesk/wght.css";
+@import "@fontsource-variable/inter/wght.css";
+@import "@fontsource-variable/jetbrains-mono/wght.css";
+
+@theme {
+  --font-display:
+    "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", ui-monospace, Menlo, Consolas, monospace;
+
+  --color-night: #101013;
+  --color-card: #1e1e1e;
+  --color-steel: #909193;
+  --color-steel-light: #e2e2e5;
+  --color-muted: #aaabad;
+  --color-accent-blue: #76adfb;
+  --color-accent-peach: #ffb596;
+  --color-accent-orange: #ed6822;
+}
+
+/* Sizing the ramp to one line box and tiling it gives every line of a
+   multi-line heading the full white-to-gray sweep. The tile has to equal the
+   line box exactly or the ramp drifts out of phase: a hard-coded 1.05em against
+   a heading set in leading-[0.9] restarts the gradient mid-line, so the second
+   line opens on a band of gray. `1lh` is that measurement, whatever the leading
+   happens to be; the em value stays first as the fallback for browsers without it. */
+@utility text-gradient-metal {
+  background-image: linear-gradient(to bottom, #ffffff 20%, #9da0a6 100%);
+  background-size: 100% 1.05em;
+  background-size: 100% 1lh;
+  background-repeat: repeat-y;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  :where(a, button, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-accent-blue);
+    outline-offset: 3px;
+  }
+}

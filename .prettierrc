@@ -1,0 +1,21 @@
+{
+  "plugins": ["prettier-plugin-astro"],
+  "tabWidth": 2,
+  "useTabs": false,
+
+  "overrides": [
+    {
+      "files": "*.astro",
+      "options": {
+        "parser": "astro"
+      }
+    },
+    {
+      "files": ["*.md", "*.mdx"],
+      "options": {
+        "printWidth": 80,
+        "proseWrap": "always"
+      }
+    }
+  ]
+}

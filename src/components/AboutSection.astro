@@ -1,0 +1,97 @@
+---
+import { Image } from "astro:assets";
+import { ArrowRight, Flame } from "@lucide/astro";
+import Embers from "./Embers.astro";
+
+// Cards and the /[subteam] pages read the same array, so a name or a lead can't
+// drift between the two. Each card is backed by that subteam's own work rather
+// than stock imagery — the crops were baked to a common level because the sources
+// disagree wildly: the CAD render sits on white and had its lightness inverted,
+// while the P&ID is near-black line art that needed lifting.
+import { subteams } from "../data/subteams";
+---
+
+<section id="about" class="relative bg-night">
+  <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <Embers
+      class="absolute inset-x-0 top-0 h-110 w-full opacity-70 mask-[linear-gradient(to_bottom,black_50%,transparent)]"
+      count={130}
+      seed={3}
+    />
+  </div>
+
+  <div
+    class="relative z-10 mx-auto max-w-7xl px-6 pt-32 pb-24 md:px-12 md:pt-40 md:pb-32"
+  >
+    <div class="max-w-2xl">
+      <div class="flex items-center gap-2">
+        <Flame class="size-5 text-accent-orange md:size-6" />
+        <p
+          class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
+        >
+          ABOUT US
+        </p>
+      </div>
+      <h2
+        class="mt-2 text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
+      >
+        SRAD liquid propulsion, designed and built by students.
+      </h2>
+      <p class="mt-6 text-sm leading-relaxed text-white/80 md:text-base">
+        Duke AERO's Liquid Propulsion Division is developing a fully in-house
+        Kerosene and Nitrous Oxide rocket engine — from combustion hardware and
+        propellant feed systems to the control electronics that will fire it.
+        Every subsystem is designed, machined, tested, and operated by students,
+        led by project lead Jack Do (MechE/Aero '28).
+      </p>
+    </div>
+
+    <div class="mt-16 grid gap-6 md:grid-cols-3">
+      {
+        subteams.map((team) => (
+          <article class="group relative isolate flex min-h-96 flex-col justify-end overflow-hidden border border-white/10 md:min-h-120">
+            <Image
+              src={team.card}
+              alt={team.cardAlt}
+              widths={[450, 900]}
+              sizes="(min-width: 768px) 33vw, 100vw"
+              class="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            />
+            {/* The gray wash that unifies three very different drawings... */}
+            <div
+              class="absolute inset-0 -z-10 bg-steel/15"
+              aria-hidden="true"
+            />
+            {/* ...and a foot of dark under the copy, because a flat wash over line
+                art leaves body text sitting on whatever the drawing happens to do. */}
+            <div
+              class="absolute inset-0 -z-10 bg-linear-to-t from-night via-night/75 to-transparent"
+              aria-hidden="true"
+            />
+
+            <div class="p-6">
+              <p class="font-mono text-xs text-accent-peach">{team.index}</p>
+              <h3 class="mt-3 font-display text-lg font-bold text-white">
+                {team.name}
+              </h3>
+              {/* Reserved to the longest description in the set. The cards are
+                  bottom-aligned, so without a common floor here a two-line card
+                  pushes its index a whole line above its neighbours'. */}
+              <p class="mt-2 min-h-[4.25rem] text-sm leading-relaxed text-white/80">
+                {team.summary}
+              </p>
+              <a
+                href={`/${team.slug}`}
+                class="mt-5 inline-flex items-center gap-2 bg-white px-4 py-2.5 font-display text-xs font-bold uppercase tracking-[0.16em] text-night transition-colors hover:bg-accent-peach"
+              >
+                Explore
+                <span class="sr-only">{team.name}</span>
+                <ArrowRight class="size-3.5" aria-hidden="true" />
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

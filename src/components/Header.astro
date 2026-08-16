@@ -1,0 +1,176 @@
+---
+import { Image } from "astro:assets";
+// A raster mark rather than the old SVG, so it needs <Image> and explicit densities:
+// an SVG import renders as an inline component and scales for free, a PNG does not.
+// Intrinsic size is set from the 4267x1211 source aspect (3.52:1) so the header
+// reserves the right box before the file lands.
+import logo from "../assets/lpd-logo-1.png";
+---
+
+<header id="site-header" class="fixed inset-x-0 top-0 z-50">
+  <!-- hero veil fades out once scrolled, solid bar fades in -->
+  <div
+    class="veil pointer-events-none absolute inset-x-0 -bottom-6 top-0 bg-linear-to-b from-black/55 via-black/20 to-transparent transition-opacity duration-300"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="solid pointer-events-none absolute inset-0 border-b border-white/10 bg-night/85 opacity-0 backdrop-blur-md transition-opacity duration-300"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div
+    class="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-12 md:py-5"
+  >
+    <a
+      href="/"
+      aria-label="Duke AERO Liquid Propulsion home"
+      class="flex items-center gap-3 transition-opacity hover:opacity-80"
+    >
+      <Image
+        src={logo}
+        alt=""
+        width={127}
+        height={36}
+        densities={[1, 2, 3]}
+        class="h-8 w-auto invert md:h-9"
+        loading="eager"
+      />
+    </a>
+
+    <nav
+      class="hidden items-center gap-8 font-display text-sm font-bold uppercase tracking-[0.18em] md:flex"
+    >
+      <a href="#about" class="nav-link">About</a>
+      <a
+        href="https://dukerocketry.com"
+        class="nav-link"
+        target="_blank"
+        rel="noopener">Duke AERO ↗</a
+      >
+    </nav>
+
+    <button
+      id="menu-btn"
+      type="button"
+      class="flex size-9 items-center justify-center text-white/80 transition-colors hover:text-white md:hidden"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Open menu"
+    >
+      <svg
+        class="icon-burger size-6"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+      >
+        <path d="M4 7h16M4 12h16M4 17h16"></path>
+      </svg>
+      <svg
+        class="icon-close hidden size-6"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+      >
+        <path d="m6 6 12 12M18 6 6 18"></path>
+      </svg>
+    </button>
+  </div>
+
+  <div
+    id="mobile-menu"
+    class="hidden border-y border-white/10 bg-night/95 backdrop-blur-md md:hidden"
+  >
+    <nav class="px-6 py-4">
+      <a
+        href="#about"
+        class="block py-3 font-display text-sm font-bold uppercase tracking-[0.18em] text-white/85"
+      >
+        About
+      </a>
+      <a
+        href="https://dukerocketry.com"
+        target="_blank"
+        rel="noopener"
+        class="block py-3 font-display text-sm font-bold uppercase tracking-[0.18em] text-white/85"
+      >
+        Duke AERO ↗
+      </a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById("site-header");
+  const onScroll = () =>
+    header?.classList.toggle("is-scrolled", window.scrollY > 24);
+  onScroll();
+  addEventListener("scroll", onScroll, { passive: true });
+
+  const btn = document.getElementById("menu-btn");
+  const panel = document.getElementById("mobile-menu");
+  const setOpen = (open: boolean) => {
+    panel?.classList.toggle("hidden", !open);
+    btn?.setAttribute("aria-expanded", String(open));
+    btn?.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    header?.classList.toggle("menu-open", open);
+  };
+  btn?.addEventListener("click", () =>
+    setOpen(panel?.classList.contains("hidden") ?? false),
+  );
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setOpen(false);
+  });
+</script>
+
+<style>
+  #site-header.is-scrolled .veil,
+  #site-header.menu-open .veil {
+    opacity: 0;
+  }
+
+  #site-header.is-scrolled .solid,
+  #site-header.menu-open .solid {
+    opacity: 1;
+  }
+
+  #menu-btn[aria-expanded="true"] .icon-burger {
+    display: none;
+  }
+
+  #menu-btn[aria-expanded="true"] .icon-close {
+    display: block;
+  }
+
+  .nav-link {
+    position: relative;
+    padding-block: 0.25rem;
+    color: rgb(255 255 255 / 0.75);
+    transition: color 0.25s ease;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1.5px;
+    background: var(--color-accent-orange, #ed6822);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .nav-link:hover {
+    color: white;
+  }
+
+  .nav-link:hover::after {
+    transform: scaleX(1);
+  }
+</style>

@@ -1,0 +1,123 @@
+---
+import { getImage } from "astro:assets";
+import Header from "./Header.astro";
+// Both graded from How c/assets/immich-20260814_140439/IMG_3092.HEIC (the propellant
+// feed cart). The lab wall behind the cart is brighter than the hardware, so a
+// straight darkening pass leaves a glowing rectangle; the source is split-toned
+// instead — crushed to greyscale, tinted to accent-peach, then multiplied with a
+// cool shadow — which folds the wall and the magenta anodizing into one warm field.
+// No vignette is baked in: the image is full-bleed, so edge falloff would read as a
+// frame. Legibility is the scrim's job, below.
+//
+// Two crops rather than one, because a landscape frame cover-cropped to a phone
+// shows a ~23%-wide slice of itself. The portrait cut is a real composition through
+// the same cart, and <picture> means only one of them is ever downloaded.
+import heroWide from "../assets/hero-manifold-wide.webp";
+import heroTall from "../assets/hero-manifold-tall.webp";
+
+const wide = await getImage({
+  src: heroWide,
+  widths: [1200, 1600, 2300],
+  format: "webp",
+  quality: 78,
+});
+const tall = await getImage({
+  src: heroTall,
+  widths: [560, 800, 1160],
+  format: "webp",
+  quality: 78,
+});
+---
+
+<section
+  class="relative flex h-screen min-h-160 flex-col overflow-hidden bg-night"
+>
+  <picture>
+    <source
+      media="(min-width: 768px)"
+      srcset={wide.srcSet.attribute}
+      sizes="100vw"
+    />
+    <img
+      src={tall.src}
+      srcset={tall.srcSet.attribute}
+      sizes="100vw"
+      alt="Duke AERO's liquid propulsion feed system: solenoid valves, a pressure gauge, and braided propellant lines on the test cart."
+      class="pointer-events-none absolute inset-0 h-full w-full object-cover object-[46%_center] md:object-center"
+      fetchpriority="high"
+      decoding="async"
+    />
+  </picture>
+
+  <!-- The photograph is documentation, not a text surface. This weights the dark
+       toward the top and left, where the headline and the readout sit, and lets the
+       frame stay open through the middle and right where the hardware actually is. -->
+  <div class="scrim absolute inset-0" aria-hidden="true"></div>
+
+  <Header />
+
+  <div
+    class="relative z-10 flex flex-1 items-center px-6 pt-24 md:px-12 md:pt-28"
+  >
+    <div class="mx-auto w-full max-w-7xl">
+      <!-- The founding line sits where the main dukerocketry.com hero puts EST. 2018,
+           so the two sites read as the same family. -->
+      <p
+        class="font-display text-sm font-bold tracking-widest text-accent-peach md:text-lg lg:text-xl"
+      >
+        EST. 2023
+      </p>
+      <h1
+        class="text-gradient-metal mt-2 font-display text-[clamp(28px,7.2vw,88px)] font-bold leading-[0.9] tracking-[-0.02em]"
+      >
+        REDEFINING LIMITS,<br />
+        LIQUID PROPULSION
+      </h1>
+      <p
+        class="mt-6 max-w-xl text-pretty text-base leading-relaxed text-steel-light md:mt-8 md:text-lg"
+      >
+        The society flies solid rockets. This division is building the liquid
+        engine — kerosene, nitrous&nbsp;oxide, and a long stretch of work before
+        anyone sees a flame.
+      </p>
+    </div>
+  </div>
+
+  <!-- Drawn from the team's own ground-control software: eight servo channels,
+       three eight-channel ADCs, live logging. Counts only — no pressures, thrust,
+       or dates the hardware hasn't earned. The identifier is one entry among the
+       readings, not a coloured label sitting above them.
+
+       The row carries its own floor because it crosses lit tubing and fittings, and
+       darkening the whole frame to protect four readings would cost the hardware the
+       legibility it was cropped for. Separation is spacing, not rules — a wrapped
+       line would otherwise open with a stray divider at whatever width it breaks. -->
+  <div
+    class="relative z-10 bg-linear-to-t from-night/90 via-night/60 to-transparent px-6 pt-12 pb-8 md:px-12 md:pb-10"
+  >
+    <ul
+      class="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-x-8 gap-y-2 font-mono text-[10px] uppercase tracking-[0.18em] text-white/60 md:gap-x-10 md:text-xs"
+    >
+      <li>Duke AERO — Subteam 08</li>
+      <li>8 servo channels</li>
+      <li>3 &times; 8-ch ADC</li>
+      <li>Real-time logging</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .scrim {
+    /* One diagonal pass, not two stacked ones — layered scrims multiply, and the
+       pair this replaced compounded to ~89% at the top-left corner, which flattened
+       the photograph it was meant to sit on. Dark where the type is, open where the
+       hardware is. */
+    background: linear-gradient(
+      to bottom right,
+      rgb(12 12 15 / 0.72) 0%,
+      rgb(12 12 15 / 0.36) 46%,
+      rgb(12 12 15 / 0.06) 100%
+    );
+    pointer-events: none;
+  }
+</style>

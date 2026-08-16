@@ -1,0 +1,155 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Embers from "../components/Embers.astro";
+---
+
+<Layout
+  title="404: Off the Range | Duke AERO Liquid Propulsion"
+  description="No page at that path."
+  noindex
+>
+  <Header />
+
+  <main
+    class="relative flex min-h-svh flex-col justify-center overflow-hidden px-6 py-32"
+  >
+    <Embers
+      class="pointer-events-none absolute inset-x-0 top-0 h-2/3 w-full opacity-60 mask-[linear-gradient(to_bottom,black,transparent)]"
+      count={90}
+    />
+
+    <div class="relative mx-auto w-full max-w-190 text-center">
+      <div class="band relative">
+        <svg
+          class="plot absolute inset-0 h-full w-full"
+          viewBox="0 0 480 170"
+          fill="none"
+          aria-hidden="true"
+        >
+          <line
+            x1="-1200"
+            y1="150"
+            x2="1680"
+            y2="150"
+            stroke="rgba(255,255,255,0.12)"></line>
+          <line
+            x1="64"
+            y1="150"
+            x2="64"
+            y2="141"
+            stroke="rgba(255,255,255,0.22)"></line>
+
+          <path
+            d="M64 150C88 96 150 34 220 32C290 30 352 94 400 150"
+            stroke="rgba(255,255,255,0.11)"
+            stroke-dasharray="4 5"></path>
+
+          <path
+            class="ghost"
+            d="M276 94C288 106 296 120 301 134"
+            stroke="var(--color-accent-peach, #ffb596)"
+            stroke-opacity="0.3"
+            stroke-dasharray="2 6"></path>
+          <path
+            class="trace"
+            pathLength="1"
+            d="M64 150C84 110 132 76 196 66C234 61 260 74 276 94"
+            stroke="var(--color-accent-orange, #ed6822)"
+            stroke-width="2"
+            stroke-linecap="round"></path>
+
+          <g class="terminus" stroke="var(--color-accent-orange, #ed6822)">
+            <circle cx="276" cy="94" r="5" stroke-opacity="0.45"></circle>
+            <circle
+              cx="276"
+              cy="94"
+              r="2"
+              fill="var(--color-accent-orange, #ed6822)"
+              stroke="none"></circle>
+            <line x1="262" y1="94" x2="269" y2="94" stroke-opacity="0.65"
+            ></line>
+            <line x1="276" y1="80" x2="276" y2="87" stroke-opacity="0.65"
+            ></line>
+            <line x1="276" y1="101" x2="276" y2="108" stroke-opacity="0.65"
+            ></line>
+          </g>
+        </svg>
+      </div>
+
+      <h1
+        class="text-gradient-metal mt-12 font-display text-[clamp(44px,5vw,72px)] font-bold leading-[0.92]"
+      >
+        Off the range.
+      </h1>
+
+      <p class="mt-5 font-mono text-sm wrap-anywhere text-steel">
+        404: NOT_FOUND, your requested page could not be found.
+      </p>
+
+      <a
+        href="/"
+        class="group mt-9 inline-flex items-center gap-2 font-display text-sm font-bold text-accent-peach"
+      >
+        <span class="group-hover:underline">Back to the pad</span>
+        <span
+          class="transition-transform duration-200 group-hover:translate-x-1"
+          aria-hidden="true">→</span
+        >
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .band {
+    height: 150px;
+  }
+
+  @media (min-width: 640px) {
+    .band {
+      height: 190px;
+    }
+  }
+
+  .trace {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: fly 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+  }
+
+  .terminus,
+  .ghost {
+    opacity: 0;
+    animation: surface 0.5s ease-out 1.35s forwards;
+  }
+
+  @keyframes fly {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes surface {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trace,
+    .terminus,
+    .ghost {
+      animation: none;
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .plot {
+    stroke-width: 1;
+  }
+</style>

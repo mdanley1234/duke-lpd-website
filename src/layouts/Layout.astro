@@ -1,0 +1,92 @@
+---
+import "../styles/global.css";
+import { getImage } from "astro:assets";
+import displayFont from "@fontsource-variable/space-grotesk/files/space-grotesk-latin-wght-normal.woff2?url";
+import thumbnail from "../assets/thumbnail.png";
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = "Duke AERO Liquid Propulsion",
+  description = "Duke AERO's Liquid Propulsion Division: a student-built kerosene and nitrous oxide engine with an in-house control system, developed at Duke University.",
+  noindex = false,
+} = Astro.props;
+
+const og = await getImage({
+  src: thumbnail,
+  width: 1200,
+  height: 675,
+  format: "jpeg",
+  quality: 82,
+});
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(og.src, Astro.site);
+---
+
+<!doctype html>
+<html lang="en" class="bg-night">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="dark" />
+    <!-- Dark Reader's auto-detection misreads this palette and inverts stuff, so disable darkreader -->
+    <meta name="darkreader-lock" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon.png"
+      media="(prefers-color-scheme: dark)"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="/favicon-light.png"
+      media="(prefers-color-scheme: light)"
+    />
+    <link rel="apple-touch-icon" href="/favicon-light.png" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Duke AERO — Liquid Propulsion" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content={String(og.attributes.width)} />
+    <meta property="og:image:height" content={String(og.attributes.height)} />
+    <meta property="og:image:alt" content="Duke AERO Liquid Propulsion" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content="Duke AERO Liquid Propulsion" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={displayFont}
+      crossorigin
+    />
+
+    <!--
+      TODO(analytics): the main dukerocketry.com site self-hosts Plausible via
+      stats.derock.dev, and each domain gets its own bound script snippet.
+      Register lpd.dukerocketry.com as a new site with whoever admins that
+      instance and drop the resulting <script> tag in here before launch.
+    -->
+  </head>
+  <body class="min-h-screen bg-night font-sans text-white antialiased">
+    <slot />
+  </body>
+</html>
