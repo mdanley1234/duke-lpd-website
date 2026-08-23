@@ -13,9 +13,17 @@ import { subteams } from "../data/subteams";
 
 <section id="about" class="relative bg-night">
   <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    {
+      /* Spans the whole section so the field carries down to the photo wall
+        instead of dying out under the heading. No bottom fade — the wall begins
+        exactly where this ends, and the embers should reach it.
+
+        The count rises with the height: the SVG scales to cover, so stretching
+        the same particles over roughly three times the area visibly thins them. */
+    }
     <Embers
-      class="absolute inset-x-0 top-0 h-110 w-full opacity-70 mask-[linear-gradient(to_bottom,black_50%,transparent)]"
-      count={130}
+      class="absolute inset-0 h-full w-full opacity-70"
+      count={200}
       seed={3}
     />
   </div>
@@ -23,21 +31,32 @@ import { subteams } from "../data/subteams";
   <div
     class="relative z-10 mx-auto max-w-7xl px-6 pt-32 pb-24 md:px-12 md:pt-40 md:pb-32"
   >
-    <div class="max-w-2xl">
-      <div class="flex items-center gap-2">
-        <Flame class="size-5 text-accent-orange md:size-6" />
-        <p
-          class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
-        >
-          ABOUT US
-        </p>
-      </div>
+    {
+      /* Split masthead: heading and body sit side by side rather than stacked,
+        which fills the measure and gives this section a different shape from
+        the stacked header over the Projects timeline. Both columns stay
+        left-aligned — the variety is structural, so no prose pays for it with a
+        ragged left edge. Collapses to a stack below md. */
+    }
+    <div class="flex items-center gap-2">
+      <Flame class="size-5 text-accent-orange md:size-6" />
+      <p
+        class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
+      >
+        ABOUT US
+      </p>
+    </div>
+    <div class="mt-3 grid gap-6 md:grid-cols-2 md:gap-12 lg:gap-20">
       <h2
-        class="mt-2 text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
+        class="text-balance text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
       >
         SRAD liquid propulsion, designed and built by students.
       </h2>
-      <p class="mt-6 text-sm leading-relaxed text-white/80 md:text-base">
+      {
+        /* Nudged down so its first line sits with the heading's cap height
+          rather than its ascender line. */
+      }
+      <p class="text-sm leading-relaxed text-white/80 md:pt-2 md:text-base">
         Duke AERO's Liquid Propulsion Division is developing a fully in-house
         Kerosene and Nitrous Oxide rocket engine — from combustion hardware and
         propellant feed systems to the control electronics that will fire it.
