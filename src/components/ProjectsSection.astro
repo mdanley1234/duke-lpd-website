@@ -1,0 +1,236 @@
+---
+import { Rocket, ArrowRight } from "@lucide/astro";
+import { projects } from "../data/projects";
+
+// A rail, not a grid of cards: these are sequential and dated, and the parent
+// site already reaches for a rail whenever the left column is a label
+// (join.astro's day column, team.astro's index column). The spine and the node
+// markers are the only things added on top of that idiom.
+//
+// No ember field here. AboutSection above already opens with one, and repeating
+// it would make the two sections read as the same entrance twice.
+---
+
+<section id="projects" class="relative bg-night">
+  <div class="mx-auto max-w-7xl px-6 pt-24 pb-24 md:px-12 md:pt-32 md:pb-32">
+    <div class="flex items-center gap-2">
+      <Rocket class="size-5 text-accent-orange md:size-6" />
+      <p
+        class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
+      >
+        PROJECTS
+      </p>
+    </div>
+    <h2
+      class="mt-2 max-w-3xl text-balance text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
+    >
+      Every project builds on the failures of the last — because mistakes are
+      the path to progress.
+    </h2>
+    <p
+      class="mt-6 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base"
+    >
+      Each project has its own workstreams and its own hardware, and each is
+      pointed at the same test — a liquid engine the team can take to a hot
+      fire. Reaching it takes years, and a project that never gets there still
+      hands the next one a design and a stack of test data to start from.
+    </p>
+
+    {/* Ordered, because the sequence is the content: this is a chronology. */}
+    <ol class="mt-16 md:mt-20">
+      {
+        projects.map((project, i) => (
+          <li
+            class:list={[
+              "project relative pl-7 md:grid md:grid-cols-[7rem_1fr] md:gap-x-12 md:pl-0",
+              i === projects.length - 1 ? "is-last pb-0" : "pb-16 md:pb-20",
+            ]}
+          >
+            <span class="node" data-status={project.status} aria-hidden="true">
+              <span class="node-ring" />
+            </span>
+
+            <p class="font-mono text-xs tracking-[0.14em] text-white/60 md:pt-1 md:text-right">
+              {project.years}
+            </p>
+
+            <div class="mt-3 md:mt-0">
+              <div class="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+                <h3 class="font-display text-xl font-bold text-white md:text-2xl">
+                  {project.name}
+                </h3>
+                {/* Real text, not a coloured dot — status must survive with
+                    colour removed. */}
+                <span
+                  class:list={[
+                    "chip",
+                    project.status === "active" ? "chip-active" : "chip-past",
+                  ]}
+                >
+                  {project.statusLabel}
+                </span>
+              </div>
+
+              <p class="mt-3 max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
+                {project.objective}
+              </p>
+
+              {/* Only a finished project has one. Labelled rather than set in a
+                  bordered callout — the label carries the shift in register. */}
+              {project.outcome && (
+                <div class="mt-5 max-w-2xl">
+                  <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">
+                    Outcome
+                  </p>
+                  <p class="mt-2 text-sm leading-relaxed text-white/70">
+                    {project.outcome}
+                  </p>
+                </div>
+              )}
+
+              <ul class="mt-7 border-t border-white/10">
+                {project.workstreams.map((workstream) => (
+                  <li class="grid gap-x-5 gap-y-1 border-b border-white/10 py-4 sm:grid-cols-[2rem_minmax(0,11rem)_1fr]">
+                    <span class="font-mono text-xs text-accent-peach">
+                      {workstream.index}
+                    </span>
+                    <span class="font-display text-sm font-bold text-white">
+                      {workstream.name}
+                    </span>
+                    <span class="text-sm leading-relaxed text-white/70">
+                      {workstream.summary}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* TODO(routing): falls back to the /projects index until
+                  per-project detail pages exist, so this never points at an
+                  unbuilt page. Swap to `detailHref` when they land. */}
+              <a
+                href={project.detailHref ?? "/projects"}
+                class="learn-more group/more mt-7 inline-flex items-center gap-2 border border-white/15 px-4 py-3 font-display text-sm font-bold text-white transition-colors hover:border-accent-orange hover:bg-accent-orange hover:text-night"
+              >
+                Learn more about {project.name}
+                <ArrowRight
+                  class="size-4 transition-transform group-hover/more:translate-x-1"
+                  aria-hidden="true"
+                />
+              </a>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  /* The spine sits at the left edge on mobile and between the two grid columns
+     at md+, so its x-position is the one thing that moves between breakpoints. */
+  .project {
+    --spine-x: 0px;
+  }
+
+  .project::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--spine-x);
+    width: 1px;
+    background: rgb(255 255 255 / 0.12);
+  }
+
+  /* The last project is still running, so its segment fades out downward rather
+     than stopping on a hard tick — the timeline runs off into work not done. */
+  .project.is-last::before {
+    bottom: -4rem;
+    background: linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.12) 0%,
+      rgb(255 255 255 / 0.12) 45%,
+      transparent 100%
+    );
+  }
+
+  .node {
+    position: absolute;
+    top: 0.3rem;
+    left: var(--spine-x);
+    width: 0.6rem;
+    height: 0.6rem;
+    transform: translateX(-50%);
+    border-radius: 9999px;
+  }
+
+  .node[data-status="past"] {
+    background: var(--color-night);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+  }
+
+  .node[data-status="active"] {
+    background: var(--color-accent-orange);
+  }
+
+  .node-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+  }
+
+  /* One authored moment in the section, on the one element whose state it
+     describes: the project that is still running. */
+  .node[data-status="active"] .node-ring {
+    box-shadow: 0 0 0 1px var(--color-accent-orange);
+    animation: node-pulse 3.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  @keyframes node-pulse {
+    0% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .node[data-status="active"] .node-ring {
+      animation: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .project {
+      /* Column one (7rem) plus half the 3rem gap: the spine lands in the gutter
+         rather than against either column's text. */
+      --spine-x: 8.5rem;
+    }
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid;
+    padding: 0.2rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .chip-active {
+    border-color: rgb(237 104 34 / 0.45);
+    background: rgb(237 104 34 / 0.12);
+    color: var(--color-accent-peach);
+  }
+
+  .chip-past {
+    border-color: rgb(255 255 255 / 0.18);
+    color: rgb(255 255 255 / 0.65);
+  }
+</style>

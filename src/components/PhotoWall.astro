@@ -1,0 +1,238 @@
+---
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+// Drop-folders: one subfolder of src/assets/wall/ per row, and a photo appears
+// in exactly the row whose folder it sits in. Adding a `row-4/` folder adds a
+// fourth row with no edit here.
+//
+// Within a folder, order is numeric by filename — prefix with 10-, 20-, … to
+// control sequence. The filename (minus that prefix) becomes the alt text, so
+// name files in words: "regen-chamber-upright.webp" reads as "Regen chamber
+// upright". `eager` resolves the imports at build time so each file still goes
+// through Astro's image pipeline.
+const modules = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/wall/*/*.{jpg,jpeg,png,webp,avif}",
+  { eager: true },
+);
+
+// Numeric collation throughout — plain string order puts "100-" directly after
+// "10-" and silently scrambles a sequence past nine files.
+const byNumber = (a: string, b: string) =>
+  a.localeCompare(b, undefined, { numeric: true });
+
+const folders = new Map<
+  string,
+  { src: ImageMetadata; alt: string; stem: string }[]
+>();
+for (const [file, mod] of Object.entries(modules)) {
+  const parts = file.split("/");
+  const folder = parts[parts.length - 2];
+  const stem = parts[parts.length - 1].replace(/\.[^.]+$/, "");
+  const words = stem
+    .replace(/^\d+[-_]/, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
+  if (!folders.has(folder)) folders.set(folder, []);
+  folders.get(folder)!.push({
+    src: mod.default,
+    alt: words.charAt(0).toUpperCase() + words.slice(1),
+    // The ordering key has to be the filename, not the alt text — the alt has
+    // already had the numeric prefix stripped off it.
+    stem,
+  });
+}
+
+const rows = [...folders.entries()]
+  .sort(([a], [b]) => byNumber(a, b))
+  .map(([folder, items]) => ({
+    folder,
+    items: items.sort((x, y) => byNumber(x.stem, y.stem)),
+  }));
+
+// A marquee only looks seamless while viewport <= (copies - 1) x groupWidth, so
+// the number of copies has to answer to how much content a row actually holds.
+// Splitting fifteen photos across three rows makes each group a third as wide as
+// it was, which a fixed count would not survive on a wide display. Group width
+// is estimated from each file's own aspect at the largest tile height, and the
+// target is set past 4K.
+const TILE_H = 272;
+const GAP = 16;
+const TARGET_VIEWPORT = 4200;
+
+const tracks = rows.map(({ folder, items }) => {
+  const groupWidth = items.reduce(
+    (sum, p) => sum + (p.src.width / p.src.height) * TILE_H + GAP,
+    0,
+  );
+  return {
+    folder,
+    items,
+    copies: Math.max(2, Math.ceil(TARGET_VIEWPORT / groupWidth) + 1),
+  };
+});
+---
+
+{
+  tracks.length > 0 && (
+    <section
+      class="relative overflow-hidden bg-night py-3"
+      aria-labelledby="wall-heading"
+      data-photo-wall
+    >
+      <h2 id="wall-heading" class="sr-only">
+        The division at work
+      </h2>
+
+      {tracks.map(({ items, copies }, i) => (
+        <div class="wall-row" style={`--dur:${[82, 104, 92][i % 3]}s`}>
+          <div
+            class="wall-track"
+            data-dir={i % 2 === 1 ? "reverse" : "forward"}
+            style={`--copies:${copies}`}
+          >
+            {/* Identical groups; the keyframe shifts by exactly one of them, so
+                the cycle lands back on a matching frame. Clones are hidden from
+                assistive tech so nothing is announced more than once. */}
+            {Array.from({ length: copies }, (_, copy) => (
+              <div
+                class="wall-group"
+                aria-hidden={copy > 0 ? "true" : undefined}
+              >
+                {items.map((photo) => (
+                  <figure class="wall-tile">
+                    {/* Not lazy, deliberately. A tile the marquee carries into
+                        view isn't reliably counted as visible, so lazy tiles
+                        arrive blank and pop in mid-travel — and it saved
+                        nothing, since every copy resolves to the same handful
+                        of URLs. Held off the critical path with a low priority
+                        instead. */}
+                    <Image
+                      src={photo.src}
+                      alt={copy === 0 ? photo.alt : ""}
+                      loading="eager"
+                      decoding="async"
+                      fetchpriority="low"
+                      class="h-full w-auto max-w-none object-cover"
+                    />
+                  </figure>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
+  )
+}
+
+<style>
+  .wall-row {
+    /* One value drives the space between tiles and between rows, so the grid
+       stays even in both directions however it is retuned. */
+    --gap: 1rem;
+    --radius: 0.75rem;
+    overflow: hidden;
+    /* Both edges dissolve so the strip reads as continuous rather than as a
+       filmstrip that starts and stops at the viewport. */
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 6%,
+      black 94%,
+      transparent
+    );
+  }
+
+  .wall-row + .wall-row {
+    margin-top: var(--gap);
+  }
+
+  .wall-track {
+    display: flex;
+    width: max-content;
+    animation: wall-scroll var(--dur) linear infinite;
+    will-change: transform;
+  }
+
+  .wall-track[data-dir="reverse"] {
+    animation-direction: reverse;
+  }
+
+  /* Rows travel at different speeds and alternating directions, which is what
+     makes it read as a wall in motion instead of one belt.
+
+     The shift is exactly one group of `--copies`. Spacing lives on the tiles
+     rather than as flex `gap`, so a group's width already includes its trailing
+     space and this stays a clean fraction — with `gap` on the track the
+     translation needs a correction term and drifts every cycle. */
+  @keyframes wall-scroll {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(calc(-100% / var(--copies)), 0, 0);
+    }
+  }
+
+  .wall-group {
+    display: flex;
+  }
+
+  .wall-tile {
+    position: relative;
+    height: 9.5rem;
+    margin-right: var(--gap);
+    border-radius: var(--radius);
+    overflow: hidden;
+    flex: none;
+  }
+
+  @media (min-width: 768px) {
+    .wall-row {
+      --gap: 1.25rem;
+      --radius: 1rem;
+    }
+
+    .wall-tile {
+      height: 14rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .wall-tile {
+      height: 17rem;
+    }
+  }
+
+  /* Barely there. The photos carry their own colour now — nothing is graded into
+     the files — so this only takes the hardest highlights off white paper and
+     bare metal, rather than acting as a filter over the whole wall. */
+  .wall-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgb(12 12 15 / 0.08);
+    transition: background 0.4s ease;
+  }
+
+  .wall-row:hover .wall-tile::after {
+    background: rgb(12 12 15 / 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wall-track {
+      animation: none;
+    }
+
+    /* Without the animation the clones are dead weight and the row would only
+       ever show its first few tiles, so drop them and let the row be scrolled. */
+    .wall-group[aria-hidden="true"] {
+      display: none;
+    }
+
+    .wall-row {
+      overflow-x: auto;
+    }
+  }
+</style>

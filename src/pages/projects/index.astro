@@ -1,0 +1,71 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Embers from "../../components/Embers.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { projects } from "../../data/projects";
+
+// Structure mirrors duke-aero-website's /past-projects: centred eyebrow, metal
+// gradient H1, one intro line, then a card grid. The parts that differ are the
+// ones the two sites don't share — embers rather than starfield, and the LPD
+// orange/peach accents rather than the main site's blue.
+//
+// Newest first, opposite to the homepage timeline. There the oldest-first order
+// is the content (reading down the rail is reading forward in time); here the
+// grid is an index, and an index leads with what's current.
+const cards = [...projects].reverse();
+---
+
+<Layout
+  title="Projects | Duke AERO Liquid Propulsion"
+  description="The engine projects Duke AERO's Liquid Propulsion Division has run — Project Eno's clamshell architecture and the regeneratively cooled Prometheus that replaced it."
+>
+  <Header />
+
+  <main class="relative bg-night">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <Embers
+        class="absolute inset-x-0 top-0 h-110 w-full opacity-70 mask-[linear-gradient(to_bottom,black_50%,transparent)]"
+        count={110}
+        seed={8}
+      />
+    </div>
+
+    <div
+      class="relative z-10 mx-auto max-w-7xl px-6 pt-32 pb-24 md:px-12 md:pt-40 md:pb-32"
+    >
+      <div class="mx-auto max-w-3xl text-center">
+        <p
+          class="font-display text-xs font-bold tracking-[0.18em] text-accent-peach md:text-sm"
+        >
+          TWO PROJECTS · ONE TARGET
+        </p>
+        <h1
+          class="text-gradient-metal mt-2 font-display text-[clamp(36px,5vw,72px)] font-bold leading-none tracking-[-0.02em]"
+        >
+          Projects
+        </h1>
+        <p
+          class="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/80 md:text-base"
+        >
+          Each project is a multi-year push to put a liquid engine on the test
+          stand. These are the two the division has run — open one to see the
+          subsystems inside it.
+        </p>
+      </div>
+
+      {
+        /* items-start so an opened card grows in its own cell instead of
+          stretching the one beside it. */
+      }
+      <div
+        class="mt-16 grid grid-cols-1 items-start gap-6 sm:grid-cols-2 md:mt-20"
+      >
+        {cards.map((project) => <ProjectCard project={project} />)}
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

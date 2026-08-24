@@ -1,0 +1,173 @@
+---
+import { Image } from "astro:assets";
+import { ChevronDown, ArrowUpRight } from "@lucide/astro";
+import type { Project } from "../data/projects";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+
+// A card is a link ("go there") and a disclosure is a toggle ("open in place").
+// Putting both behaviours on one surface makes the click ambiguous, so the two
+// live in separate regions: the face is the project and carries the link, the
+// strip below it is the only thing that expands. That split is also what keeps
+// the project representable as a whole — the face you clicked *is* the project,
+// so the revealed set doesn't need an "overview" card duplicating it.
+//
+// <details> rather than a JS toggle: it is a disclosure, and the platform
+// already ships one that is keyboard-operable and announced correctly. The card
+// grows inside its own grid cell (the grid sets items-start), so opening one
+// doesn't move its neighbour.
+const {
+  cover,
+  name,
+  tagline,
+  years,
+  statusLabel,
+  status,
+  workstreams,
+  detailHref,
+} = project;
+const count = workstreams.length;
+// Built as one string rather than adjacent expressions: Astro strips the
+// whitespace between two {} siblings, which renders as "3subsystems".
+const countLabel = `${count} ${count === 1 ? "subsystem" : "subsystems"}`;
+
+// Inert until detail pages exist. Rendering a <div> rather than an <a href="#">
+// keeps the card from advertising a destination it can't reach.
+const Face = detailHref ? "a" : "div";
+---
+
+<article
+  class="group/card flex flex-col border border-white/10 bg-white/[0.02] transition-colors hover:border-white/25"
+>
+  <Face
+    {...detailHref ? { href: detailHref } : {}}
+    class:list={["flex flex-1 flex-col", detailHref && "group/face"]}
+  >
+    <div class="relative aspect-4/3 overflow-hidden">
+      <Image
+        src={cover}
+        alt=""
+        widths={[480, 800]}
+        sizes="(min-width: 1024px) 46vw, (min-width: 640px) 46vw, 92vw"
+        class="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-[1.03]"
+      />
+      <!-- The status reads over a photo here rather than over flat ground as it
+         does in the timeline, so it needs its own backdrop to stay legible. -->
+      <span
+        class:list={[
+          "absolute left-4 top-4 backdrop-blur-sm",
+          "chip",
+          status === "active" ? "chip-active" : "chip-past",
+        ]}
+      >
+        {statusLabel}
+      </span>
+    </div>
+
+    <div class="flex flex-1 flex-col p-5 md:p-6">
+      <p class="font-mono text-xs tracking-[0.14em] text-white/60">{years}</p>
+      <h2 class="mt-1 font-display text-xl font-bold text-white md:text-2xl">
+        {name}
+      </h2>
+      <p class="mt-2 text-sm leading-relaxed text-white/70">{tagline}</p>
+    </div>
+  </Face>
+
+  <details class="subsystems border-t border-white/10">
+    <summary
+      class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-mono text-xs uppercase tracking-[0.18em] text-white/60 transition-colors hover:text-white md:px-6"
+    >
+      <span>{countLabel}</span>
+      <ChevronDown class="chevron size-4 shrink-0" aria-hidden="true" />
+    </summary>
+
+    <ul class="border-t border-white/10">
+      {
+        workstreams.map((workstream) => {
+          const Row = workstream.href ? "a" : "div";
+          return (
+            <li class="border-b border-white/10 last:border-b-0">
+              <Row
+                {...(workstream.href ? { href: workstream.href } : {})}
+                class:list={[
+                  "grid grid-cols-[2rem_1fr_auto] items-baseline gap-x-4 px-5 py-4 md:px-6",
+                  workstream.href &&
+                    "group/row transition-colors hover:bg-white/[0.04]",
+                ]}
+              >
+                <span class="font-mono text-xs text-accent-peach">
+                  {workstream.index}
+                </span>
+                <span>
+                  <span class="block font-display text-sm font-bold text-white">
+                    {workstream.name}
+                  </span>
+                  <span class="mt-1 block text-sm leading-relaxed text-white/70">
+                    {workstream.summary}
+                  </span>
+                </span>
+                {workstream.href && (
+                  <ArrowUpRight
+                    class="size-4 self-center text-white/40 transition-colors group-hover/row:text-accent-peach"
+                    aria-hidden="true"
+                  />
+                )}
+              </Row>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </details>
+</article>
+
+<style>
+  /* Safari still paints its own marker without this, which shows up as a stray
+     triangle beside the count. */
+  .subsystems summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .subsystems[open] .chevron {
+    transform: rotate(180deg);
+  }
+
+  .chevron {
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chevron {
+      transition: none;
+    }
+  }
+
+  /* Same chip treatment as the timeline: status survives with colour removed,
+     because the label is real text rather than a coloured dot. */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid;
+    padding: 0.2rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .chip-active {
+    border-color: rgb(237 104 34 / 0.45);
+    background: rgb(237 104 34 / 0.35);
+    color: #fff;
+  }
+
+  .chip-past {
+    border-color: rgb(255 255 255 / 0.25);
+    background: rgb(16 16 19 / 0.55);
+    color: rgb(255 255 255 / 0.85);
+  }
+</style>
