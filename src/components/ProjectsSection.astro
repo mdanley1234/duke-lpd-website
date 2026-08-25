@@ -104,9 +104,9 @@ import { projects } from "../data/projects";
                 ))}
               </ul>
 
-              {/* TODO(routing): falls back to the /projects index until
-                  per-project detail pages exist, so this never points at an
-                  unbuilt page. Swap to `detailHref` when they land. */}
+              {/* Both projects have a detailHref now, so this resolves to
+                  their MDX page; the /projects fallback only guards a future
+                  project added without a detail page yet. */}
               <a
                 href={project.detailHref ?? "/projects"}
                 class="learn-more group/more mt-7 inline-flex items-center gap-2 border border-white/15 px-4 py-3 font-display text-sm font-bold text-white transition-colors hover:border-accent-orange hover:bg-accent-orange hover:text-night"

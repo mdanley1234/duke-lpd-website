@@ -1,0 +1,366 @@
+---
+import { Image } from "astro:assets";
+import { ArrowLeft, ArrowRight } from "@lucide/astro";
+import Layout from "./Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { projects } from "../data/projects";
+
+// MDX layout frontmatter, not page props — Astro passes the page's own
+// frontmatter through `Astro.props.frontmatter`. `slug` is the only field it
+// carries: everything else (cover, years, workstreams, gallery...) is looked
+// up from `data/projects.ts` so the detail page never forks a second copy of
+// facts the card and timeline already own.
+interface Props {
+  frontmatter: { slug: string };
+}
+
+const {
+  frontmatter: { slug },
+} = Astro.props;
+
+const project = projects.find((p) => p.slug === slug);
+if (!project) {
+  throw new Error(
+    `ProjectDetail: no project in data/projects.ts with slug "${slug}"`,
+  );
+}
+const {
+  name,
+  cover,
+  tagline,
+  years,
+  status,
+  statusLabel,
+  objective,
+  outcome,
+  workstreams,
+  gallery,
+} = project;
+
+const other = projects.find((p) => p.slug !== slug);
+// The two projects are a lineage, not a symmetric pair (see data/projects.ts),
+// so the cross-link names that direction rather than a generic "next project."
+const crossNavLabel = status === "past" ? "What it led to" : "Built on";
+---
+
+<Layout title={`${name} | Duke AERO Liquid Propulsion`} description={tagline}>
+  <Header />
+
+  <main class="relative bg-night">
+    <!-- Same full-bleed-image-behind-fixed-header technique as Hero.astro,
+         at case-study scale rather than full viewport height. No ember field
+         here — the photograph is the section's one authored moment, and
+         stacking a particle layer over graded hardware photography would
+         compete with it rather than add to it. -->
+    <section
+      class="relative flex min-h-[68svh] flex-col justify-end overflow-hidden md:min-h-[74svh]"
+    >
+      <Image
+        src={cover}
+        alt=""
+        widths={[900, 1400, 2000]}
+        sizes="100vw"
+        class="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="scrim absolute inset-0" aria-hidden="true"></div>
+
+      <div
+        class="relative z-10 mx-auto w-full max-w-7xl px-6 pb-10 pt-28 md:px-12 md:pb-14 md:pt-32"
+      >
+        <a
+          href="/projects"
+          class="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-white"
+        >
+          <ArrowLeft
+            class="size-3.5 transition-transform group-hover:-translate-x-1"
+            aria-hidden="true"
+          />
+          All projects
+        </a>
+
+        <div class="mt-8 flex flex-wrap items-center gap-3 md:mt-10">
+          <span
+            class:list={[
+              "chip backdrop-blur-sm",
+              status === "active" ? "chip-active" : "chip-past",
+            ]}
+          >
+            {statusLabel}
+          </span>
+          <p class="font-mono text-xs tracking-[0.14em] text-white/70">
+            {years}
+          </p>
+        </div>
+
+        <h1
+          class="text-gradient-metal mt-3 text-balance font-display text-[clamp(36px,6.2vw,80px)] font-bold leading-[0.95] tracking-[-0.02em]"
+        >
+          {name}
+        </h1>
+        <p
+          class="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-steel-light md:text-lg"
+        >
+          {tagline}
+        </p>
+      </div>
+    </section>
+
+    <div class="relative z-10 mx-auto max-w-3xl px-6 py-16 md:px-12 md:py-24">
+      <p class="text-pretty text-lg leading-relaxed text-white/85 md:text-xl">
+        {objective}
+      </p>
+
+      {
+        outcome && (
+          <div class="mt-10 border-t border-white/10 pt-8">
+            <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">
+              Outcome
+            </p>
+            <p class="mt-3 text-sm leading-relaxed text-white/70 md:text-base">
+              {outcome}
+            </p>
+          </div>
+        )
+      }
+
+      <div class="mt-14 border-t border-white/10 pt-8">
+        <p class="font-mono text-xs uppercase tracking-[0.18em] text-white/45">
+          Workstreams
+        </p>
+        <ul class="mt-5 border-t border-white/10">
+          {
+            workstreams.map((w) => (
+              <li class="grid gap-x-5 gap-y-1 border-b border-white/10 py-5 sm:grid-cols-[2rem_minmax(0,11rem)_1fr]">
+                <span class="font-mono text-xs text-accent-peach">
+                  {w.index}
+                </span>
+                <span class="font-display text-sm font-bold text-white">
+                  {w.name}
+                </span>
+                <span class="text-sm leading-relaxed text-white/70">
+                  {w.summary}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="project-prose mt-16 border-t border-white/10 pt-16">
+        <slot />
+      </div>
+
+      {
+        gallery.length > 0 && (
+          <div class="mt-16 border-t border-white/10 pt-16">
+            <p class="font-mono text-xs uppercase tracking-[0.18em] text-white/45">
+              From the build
+            </p>
+            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+              {gallery.map((photo) => (
+                <figure class="border border-white/10 bg-white/[0.02] p-2">
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    widths={[420, 700]}
+                    sizes="(min-width: 640px) 46vw, 92vw"
+                    class="h-auto w-full"
+                  />
+                  <figcaption class="mt-2 px-1 pb-1 text-xs leading-relaxed text-white/60">
+                    {photo.caption}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      {
+        other && (
+          <a
+            href={other.detailHref ?? "/projects"}
+            class="group/nav mt-16 flex items-center justify-between gap-4 border border-white/15 px-5 py-5 transition-colors hover:border-accent-orange md:px-6"
+          >
+            <span>
+              <span class="block font-mono text-xs uppercase tracking-[0.18em] text-white/50">
+                {crossNavLabel}
+              </span>
+              <span class="mt-1 block font-display text-lg font-bold text-white md:text-xl">
+                {other.name}
+              </span>
+            </span>
+            <ArrowRight
+              class="size-5 shrink-0 text-white/40 transition-transform group-hover/nav:translate-x-1 group-hover/nav:text-accent-orange"
+              aria-hidden="true"
+            />
+          </a>
+        )
+      }
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* Same scrim-carries-legibility approach as Hero.astro, but darkened at
+     both ends rather than one corner: the breadcrumb and status row sit at
+     the top of this banner, the name and tagline at the foot, so both need
+     protection regardless of what the cover photo does in the middle. */
+  .scrim {
+    background: linear-gradient(
+      to bottom,
+      rgb(12 12 15 / 0.6) 0%,
+      rgb(12 12 15 / 0.22) 30%,
+      rgb(12 12 15 / 0.32) 60%,
+      rgb(12 12 15 / 0.88) 100%
+    );
+    pointer-events: none;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid;
+    padding: 0.2rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .chip-active {
+    border-color: rgb(237 104 34 / 0.45);
+    background: rgb(237 104 34 / 0.35);
+    color: #fff;
+  }
+
+  .chip-past {
+    border-color: rgb(255 255 255 / 0.25);
+    background: rgb(16 16 19 / 0.55);
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  /* Astro's scoped styles don't reach markup injected through <slot />
+     (it belongs to the MDX file, not this component), so the prose rules
+     below target the wrapper class directly rather than relying on scoping. */
+  :global(.project-prose) {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: rgb(255 255 255 / 0.75);
+  }
+
+  @media (min-width: 768px) {
+    :global(.project-prose) {
+      font-size: 1.125rem;
+    }
+  }
+
+  :global(.project-prose > * + *) {
+    margin-top: 1.5em;
+  }
+
+  :global(.project-prose h2) {
+    margin-top: 2.75em;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  @media (min-width: 768px) {
+    :global(.project-prose h2) {
+      font-size: 1.75rem;
+    }
+  }
+
+  :global(.project-prose h2:first-child) {
+    margin-top: 0;
+  }
+
+  :global(.project-prose h3) {
+    margin-top: 2em;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  :global(.project-prose a) {
+    color: var(--color-accent-peach);
+    text-underline-offset: 3px;
+  }
+
+  :global(.project-prose a:hover) {
+    text-decoration-thickness: 2px;
+  }
+
+  :global(.project-prose strong) {
+    color: rgb(255 255 255 / 0.92);
+    font-weight: 700;
+  }
+
+  :global(.project-prose ul),
+  :global(.project-prose ol) {
+    padding-left: 1.25em;
+  }
+
+  :global(.project-prose ul) {
+    list-style: disc;
+  }
+
+  :global(.project-prose ol) {
+    list-style: decimal;
+  }
+
+  :global(.project-prose li + li) {
+    margin-top: 0.5em;
+  }
+
+  :global(.project-prose li::marker) {
+    color: var(--color-accent-peach);
+  }
+
+  /* A pull quote earns its weight from scale, not a coloured rule down the
+     side — see craft-floor's ban on decorative left borders. */
+  :global(.project-prose blockquote) {
+    margin-block: 2.5em;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+    padding-block: 1.5em;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #fff;
+  }
+
+  @media (min-width: 768px) {
+    :global(.project-prose blockquote) {
+      font-size: 1.5rem;
+    }
+  }
+
+  :global(.project-prose hr) {
+    border: none;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  /* A construction marker, not a styled quote or a shipped sentence — kept
+     visually distinct so it can't be mistaken for real copy and stays easy
+     to grep before launch. */
+  :global(.project-prose .content-todo) {
+    border: 1px dashed rgb(255 181 150 / 0.4);
+    background: rgb(255 181 150 / 0.06);
+    padding: 0.9em 1.1em;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-accent-peach);
+  }
+</style>

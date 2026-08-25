@@ -9,10 +9,19 @@
 // TODO(content): still outstanding from the team —
 //   1. Real year ranges for both projects. Nothing here should guess a date.
 //   2. Workstream names and one-line summaries for both projects.
+//   3. Narrative write-ups for the /projects/eno and /projects/prometheus MDX
+//      pages (src/pages/projects/*.mdx) — currently placeholder prose marked
+//      TODO(content) in those files.
 
 import type { ImageMetadata } from "astro";
 import enoCover from "../assets/projects/eno/assembled-clamshell-engine.webp";
+import enoCnc from "../assets/projects/eno/clamshell-half-in-the-cnc.webp";
+import enoOpened from "../assets/projects/eno/clamshell-halves-opened.webp";
+import enoInspecting from "../assets/projects/eno/inspecting-the-clamshell-halves.webp";
+import enoContour from "../assets/projects/eno/machined-clamshell-contour.webp";
 import prometheusCover from "../assets/projects/prometheus/regen-chamber-upright.webp";
+import prometheusCutting from "../assets/projects/prometheus/cutting-regen-cooling-channels.webp";
+import prometheusChannels from "../assets/projects/prometheus/regen-chamber-cooling-channels.webp";
 
 export interface Workstream {
   index: string;
@@ -26,8 +35,15 @@ export interface Workstream {
   href?: string;
 }
 
+export interface GalleryPhoto {
+  src: ImageMetadata;
+  /** Descriptive, not decorative — these carry real information on the detail page. */
+  alt: string;
+  caption: string;
+}
+
 export interface Project {
-  /** Reserved for future /projects/[slug] pages; nothing routes off it yet. */
+  /** Used for /projects/[slug]-style routing and to key the detail page's MDX file to its data row. */
   slug: string;
   name: string;
   /**
@@ -49,10 +65,13 @@ export interface Project {
   outcome?: string;
   workstreams: Workstream[];
   /**
-   * TODO(routing): set to `/projects/${slug}` once detail pages exist. While
-   * undefined the card face is inert and callers fall back to /projects, so no
-   * link on the site points at a page that isn't built.
+   * Build/process photography shown on the project's detail page. Explicit
+   * imports, same reasoning as `cover` — a small deliberate set, not a glob.
    */
+  gallery: GalleryPhoto[];
+  /** `/projects/${slug}`. Undefined leaves the card face inert (renders a
+   * `<div>` rather than a dead link) for any future project without a
+   * detail page yet. */
   detailHref?: string;
 }
 
@@ -77,6 +96,29 @@ export const projects: Project[] = [
       { index: "02", name: "TODO — workstream name", summary: TODO_SUMMARY },
       { index: "03", name: "TODO — workstream name", summary: TODO_SUMMARY },
     ],
+    gallery: [
+      {
+        src: enoCnc,
+        alt: "One half of the clamshell engine held in a CNC mill, mid-machining.",
+        caption: "Machining a clamshell half.",
+      },
+      {
+        src: enoContour,
+        alt: "Close-up of the machined internal contour of a clamshell engine half.",
+        caption: "The machined internal contour, before assembly.",
+      },
+      {
+        src: enoInspecting,
+        alt: "Team members inspecting the two opened clamshell halves.",
+        caption: "Inspecting the clamshell halves.",
+      },
+      {
+        src: enoOpened,
+        alt: "The two clamshell halves opened and laid side by side.",
+        caption: "The clamshell halves, opened.",
+      },
+    ],
+    detailHref: "/projects/eno",
   },
   {
     slug: "prometheus",
@@ -93,5 +135,18 @@ export const projects: Project[] = [
       { index: "02", name: "TODO — workstream name", summary: TODO_SUMMARY },
       { index: "03", name: "TODO — workstream name", summary: TODO_SUMMARY },
     ],
+    gallery: [
+      {
+        src: prometheusCutting,
+        alt: "A regeneratively cooled chamber on a mill, mid-cut, with coolant channels visible along its wall.",
+        caption: "Cutting the regenerative cooling channels.",
+      },
+      {
+        src: prometheusChannels,
+        alt: "Close-up of the finished regenerative cooling channels machined into the chamber wall.",
+        caption: "The finished cooling channels, before jacketing.",
+      },
+    ],
+    detailHref: "/projects/prometheus",
   },
 ];
