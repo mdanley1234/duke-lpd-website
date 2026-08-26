@@ -51,6 +51,12 @@ export interface Project {
    * glob suits an unordered wall, but a cover is a deliberate pick per project.
    */
   cover: ImageMetadata;
+  /**
+   * Alt text for `cover`. Needed because the homepage timeline stands the
+   * cover on its own; ProjectCard leaves it `alt=""` since there the image
+   * sits inside a link the project name already names.
+   */
+  coverAlt: string;
   /** One line under the name on the card. Shorter than `objective`. */
   tagline: string;
   /** Free-form string with an en dash, matching duke-aero-website's `years`. */
@@ -83,6 +89,8 @@ export const projects: Project[] = [
     slug: "eno",
     name: "Project Eno",
     cover: enoCover,
+    coverAlt:
+      "The assembled clamshell engine resting on a workbench, bolt holes running the length of the flange where its two machined halves meet.",
     tagline: "The clamshell engine, and the cold flow campaign that ended it.",
     years: "20XX–20XX",
     status: "past",
@@ -124,6 +132,8 @@ export const projects: Project[] = [
     slug: "prometheus",
     name: "Project Prometheus",
     cover: prometheusCover,
+    coverAlt:
+      "The regeneratively cooled chamber standing upright on a workbench, cooling channels running the full length of its outer wall.",
     tagline: "A regeneratively cooled clean-sheet redesign, aimed at hot fire.",
     years: "20XX–present",
     status: "active",

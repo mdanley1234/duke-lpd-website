@@ -50,3 +50,124 @@
     outline-offset: 3px;
   }
 }
+
+/* Long-form MDX prose, shared by the project and subteam detail layouts.
+   It lives here rather than in either layout because Astro's scoped styles
+   never reach markup injected through <slot /> — that markup belongs to the
+   MDX file — and because two layouts render it, so a scoped copy in each
+   would be two things to keep in step. */
+.page-prose {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: rgb(255 255 255 / 0.75);
+}
+
+@media (min-width: 768px) {
+  .page-prose {
+    font-size: 1.125rem;
+  }
+}
+
+.page-prose > * + * {
+  margin-top: 1.5em;
+}
+
+.page-prose h2 {
+  margin-top: 2.75em;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .page-prose h2 {
+    font-size: 1.75rem;
+  }
+}
+
+.page-prose h2:first-child {
+  margin-top: 0;
+}
+
+.page-prose h3 {
+  margin-top: 2em;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.page-prose a {
+  color: var(--color-accent-peach);
+  text-underline-offset: 3px;
+}
+
+.page-prose a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.page-prose strong {
+  color: rgb(255 255 255 / 0.92);
+  font-weight: 700;
+}
+
+.page-prose ul,
+.page-prose ol {
+  padding-left: 1.25em;
+}
+
+.page-prose ul {
+  list-style: disc;
+}
+
+.page-prose ol {
+  list-style: decimal;
+}
+
+.page-prose li + li {
+  margin-top: 0.5em;
+}
+
+.page-prose li::marker {
+  color: var(--color-accent-peach);
+}
+
+/* A pull quote earns its weight from scale, not a coloured rule down the
+   side — see craft-floor's ban on decorative left borders. */
+.page-prose blockquote {
+  margin-block: 2.5em;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  padding-block: 1.5em;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .page-prose blockquote {
+    font-size: 1.5rem;
+  }
+}
+
+.page-prose hr {
+  border: none;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
+
+/* A construction marker, not a styled quote or a shipped sentence — kept
+   visually distinct so it can't be mistaken for real copy and stays easy
+   to grep before launch. */
+.page-prose .content-todo {
+  border: 1px dashed rgb(255 181 150 / 0.4);
+  background: rgb(255 181 150 / 0.06);
+  padding: 0.9em 1.1em;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--color-accent-peach);
+}

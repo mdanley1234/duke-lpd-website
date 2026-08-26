@@ -1,0 +1,175 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import Embers from "../components/Embers.astro";
+import { divisionLead } from "../data/team";
+import { subteams } from "../data/subteams";
+
+// Same page shell as /projects (embers, centred eyebrow, metal-gradient H1) and
+// the same structure as duke-aero-website's /team — division lead first, then a
+// row per subteam — in this site's palette and its square-cornered surfaces
+// rather than the main site's blue and rounded portraits.
+//
+// Headshots are globbed rather than imported so `data/team.ts` can stay a plain
+// list of names: dropping a .webp into src/assets/team/ is the whole step for
+// adding a member. Same drop-folder reasoning as PhotoWall.
+const headshots = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/team/*.webp",
+  { eager: true },
+);
+
+const shot = (photo: string) => {
+  const hit = headshots[`../assets/team/${photo}.webp`];
+  if (!hit) throw new Error(`missing headshot: src/assets/team/${photo}.webp`);
+  return hit.default;
+};
+
+// Headshots arrive at whatever framing the member had on hand, from studio
+// portraits to cropped group shots. Anchoring to the top keeps the face in
+// frame however much room the original left above it.
+const portrait =
+  "aspect-4/5 border border-white/10 bg-card object-cover object-top";
+---
+
+<Layout
+  title="Team | Duke AERO Liquid Propulsion"
+  description="The students who run Duke AERO's Liquid Propulsion Division — the division lead and the leads of all three subteams."
+>
+  <Header />
+
+  <main class="relative bg-night">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <Embers
+        class="absolute inset-x-0 top-0 h-110 w-full opacity-70 mask-[linear-gradient(to_bottom,black_50%,transparent)]"
+        count={110}
+        seed={4}
+      />
+    </div>
+
+    <div
+      class="relative z-10 mx-auto max-w-7xl px-6 pt-32 pb-24 md:px-12 md:pt-40 md:pb-32"
+    >
+      <div class="mx-auto max-w-3xl text-center">
+        <p
+          class="font-display text-xs font-bold tracking-[0.18em] text-accent-peach md:text-sm"
+        >
+          ONE DIVISION · THREE SUBTEAMS
+        </p>
+        <h1
+          class="text-gradient-metal mt-2 font-display text-[clamp(36px,5vw,72px)] font-bold leading-none tracking-[-0.02em]"
+        >
+          Who Builds It
+        </h1>
+        <p
+          class="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-white/80 md:text-base"
+        >
+          Every part of the engine is owned end to end by students. These are
+          the people who run the division and the leads who own each subteam.
+        </p>
+      </div>
+
+      <!-- The division lead gets the page's one large portrait: they sit above
+           all three subteams, so they are not a row in the directory below. -->
+      <div
+        class="mt-16 flex flex-col gap-7 border-b border-white/10 pb-16 sm:flex-row sm:items-center sm:gap-10 md:mt-20 md:pb-20"
+      >
+        <Image
+          src={shot(divisionLead.photo)}
+          alt={divisionLead.name}
+          widths={[288, 576]}
+          sizes="288px"
+          class={`${portrait} w-full max-w-72 shrink-0`}
+        />
+        <div>
+          <p
+            class="font-mono text-[10px] uppercase tracking-[0.22em] text-accent-peach"
+          >
+            {divisionLead.role}
+          </p>
+          <p
+            class="mt-3 font-display text-[clamp(26px,2.6vw,38px)] font-bold leading-[1.05] text-steel-light"
+          >
+            {divisionLead.name}
+          </p>
+          <p class="mt-3 font-mono text-sm text-muted">{divisionLead.study}</p>
+        </div>
+      </div>
+
+      <!-- A directory rather than a grid of cards: the subteam name labels a
+           row and its people sit beside it, which reads the same with one
+           member as it will with six. Same index-column rail the rest of the
+           site uses for a labelled sequence. -->
+      <div class="mt-16 md:mt-20">
+        {
+          subteams.map((team) => (
+            <section class="grid gap-y-8 border-b border-white/10 py-10 lg:grid-cols-[14rem_1fr] lg:gap-x-12 lg:py-12">
+              <div class="flex items-baseline gap-4 lg:pt-1">
+                <span class="font-mono text-sm text-accent-peach">
+                  {team.index}
+                </span>
+                <h2 class="text-balance font-display text-lg font-bold uppercase tracking-[0.14em] text-white/85">
+                  <a
+                    href={`/${team.slug}`}
+                    class="transition-colors hover:text-accent-peach"
+                  >
+                    {team.name}
+                  </a>
+                </h2>
+              </div>
+
+              {/* Photo beside the name rather than above it: every subteam is
+                  one person deep right now, and a column of portrait cards
+                  leaves a single small headshot stranded in a wide row. A
+                  horizontal card reads as a finished unit at one member and
+                  still tiles cleanly as the roster fills. */}
+              <ul class="grid gap-x-10 gap-y-8 xl:grid-cols-2">
+                {team.members.map((member, i) => (
+                  <li class="flex items-center gap-5">
+                    <Image
+                      src={shot(member.photo)}
+                      alt={member.name}
+                      widths={[144, 288]}
+                      sizes="144px"
+                      class={`${portrait} w-36 shrink-0`}
+                    />
+                    <div>
+                      <p class="font-display text-base font-bold leading-tight text-steel-light">
+                        {member.name}
+                      </p>
+                      <p class="mt-1.5 font-mono text-xs text-muted">
+                        {member.study}
+                      </p>
+                      {/* Position 0 is the lead by convention — see
+                          data/subteams.ts. Everyone else is listed without a
+                          label rather than with a generic one. */}
+                      {i === 0 && (
+                        <p class="mt-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-accent-peach">
+                          Lead
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+
+      <p class="mt-6 text-xs leading-relaxed text-white/45">
+        Leads change each academic year. Want to be on this page? Come to a{" "}
+        <a
+          href="https://dukerocketry.com/join/"
+          target="_blank"
+          rel="noopener"
+          class="text-accent-peach hover:underline">Duke AERO GBM ↗</a
+        > and we'll get you added.
+      </p>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

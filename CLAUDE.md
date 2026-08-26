@@ -95,8 +95,10 @@ without the trailing slash and take that redirect.
 
 ## Architecture
 
-Four routes, all wrapped by `src/layouts/Layout.astro` (head/meta/OG
-tags/fonts):
+Nine routes, all wrapped by `src/layouts/Layout.astro` (head/meta/OG
+tags/fonts). The two detail layouts — `ProjectDetail.astro` and
+`SubteamDetail.astro` — sit between `Layout` and an MDX page, taking only a
+`slug` in that page's frontmatter and looking the rest up from the data files:
 
 - `src/pages/index.astro` — `Hero` → `AboutSection` → `PhotoWall` →
   `ProjectsSection` → `Footer`. `Header.astro` is imported inside `Hero` rather
@@ -105,8 +107,17 @@ tags/fonts):
   of duke-aero-website's `past-projects/index.astro` (centred eyebrow →
   `text-gradient-metal` H1 → intro line → card grid) in this site's palette.
   Imports `Header`/`Footer` directly, as all non-home pages do.
-- `src/pages/[subteam].astro` — one route generating all three subteam pages
-  from `src/data/subteams.ts` via `getStaticPaths`.
+- `src/pages/projects/eno.mdx`, `src/pages/projects/prometheus.mdx` — the two
+  project detail pages, via `src/layouts/ProjectDetail.astro`.
+- `src/pages/combustion.mdx`, `src/pages/fluids.mdx`, `src/pages/controls.mdx` —
+  one page per subteam, via `src/layouts/SubteamDetail.astro`. These replaced a
+  single `[subteam].astro` `getStaticPaths` route so each subteam has a file to
+  write a narrative into; their bodies are empty for now, and the layout renders
+  no prose wrapper at all until one has content.
+- `src/pages/team.astro` — the roster. Division lead first, then a row per
+  subteam reading its `members` array, first entry labelled as that subteam's
+  lead. Headshots are globbed from `src/assets/team/`, so adding a member is a
+  row in the data plus a dropped `.webp`.
 - `src/pages/404.astro`
 
 Key patterns to follow when extending this site:
@@ -135,9 +146,9 @@ Key patterns to follow when extending this site:
   in bulk, while project covers are **explicit imports** from
   `src/assets/projects/<slug>/` because a cover is a deliberate pick.
 - **Content**: copy and structured data live in plain local arrays —
-  `src/data/projects.ts` and `src/data/subteams.ts` for anything shared across
-  routes, or inline in component frontmatter when only one component renders it.
-  There's no CMS or content collection layer.
+  `src/data/projects.ts`, `src/data/subteams.ts`, and `src/data/team.ts` for
+  anything shared across routes, or inline in component frontmatter when only
+  one component renders it. There's no CMS or content collection layer.
 - **Terminology**: the engine efforts are **projects** (Project Eno, Project
   Prometheus), never "programs." The one surviving use of "program" is in
   `Footer.astro`, where it means Duke AERO's club-wide rocketry program — a

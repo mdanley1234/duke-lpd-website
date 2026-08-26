@@ -1,5 +1,7 @@
 import type { ImageMetadata } from "astro";
 
+import type { Member } from "./team";
+
 // Card crops (dark, cropped, meant to sit under a scrim) and full plates (lighter,
 // uncropped, meant to be read) are separate images from the same sources — a
 // background and a figure want opposite treatments.
@@ -18,8 +20,12 @@ export interface Subteam {
   summary: string;
   /** What the subteam actually owns, used at the top of its own page. */
   detail: string;
-  lead: string;
-  study: string;
+  /**
+   * Everyone on the subteam, first entry first: that one is the lead, and both
+   * the subteam page and /team read it from position 0 rather than from a
+   * separate field, so there is only ever one place a lead is named.
+   */
+  members: Member[];
   card: ImageMetadata;
   cardAlt: string;
   plate: ImageMetadata;
@@ -38,8 +44,9 @@ export const subteams: Subteam[] = [
       "Injector, chamber, and igniter design — turning propellant flow into thrust.",
     detail:
       "Combustion Devices owns everything between the injector face and the nozzle exit: how propellant is atomised and mixed, how the chamber survives what happens next, and how that gas is accelerated into thrust.",
-    lead: "Archer White",
-    study: "MechE/Aero '29",
+    members: [
+      { name: "Archer White", study: "MechE/Aero '29", photo: "archer-white" },
+    ],
     card: cardChamber,
     cardAlt:
       "Cross-section of the engine: converging-diverging nozzle and chamber liner.",
@@ -62,8 +69,13 @@ export const subteams: Subteam[] = [
       "Propellant feed, pressurization, and plumbing that get kerosene and N2O to the chamber safely.",
     detail:
       "Fluid Systems owns the path from tank to injector: pressurisation, propellant routing, and the valves and interlocks that make a test sequence safe to run and, more importantly, safe to abort.",
-    lead: "Ethan Rosenfeld",
-    study: "MechE/Physics '29",
+    members: [
+      {
+        name: "Ethan Rosenfeld",
+        study: "MechE/Physics '29",
+        photo: "ethan-rosenfeld",
+      },
+    ],
     card: cardFluids,
     cardAlt:
       "Piping and instrumentation diagram showing propellant tanks, servo ball valves, and check valves.",
@@ -89,8 +101,9 @@ export const subteams: Subteam[] = [
       "The in-house control board and software that arm, sequence, and monitor every test.",
     detail:
       "Electrical & Controls owns the board and the software that arm, sequence, and log a test. Every valve command and every reading passes through hardware the team laid out itself.",
-    lead: "Michael Danley",
-    study: "ECE, CS '29",
+    members: [
+      { name: "Michael Danley", study: "ECE, CS '29", photo: "michael-danley" },
+    ],
     card: cardControls,
     cardAlt:
       "Layout of the in-house liquid propulsion control board, showing the servo bus and pressure-transducer interface.",

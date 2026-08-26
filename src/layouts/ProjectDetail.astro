@@ -149,7 +149,7 @@ const crossNavLabel = status === "past" ? "What it led to" : "Built on";
         </ul>
       </div>
 
-      <div class="project-prose mt-16 border-t border-white/10 pt-16">
+      <div class="page-prose mt-16 border-t border-white/10 pt-16">
         <slot />
       </div>
 
@@ -243,124 +243,5 @@ const crossNavLabel = status === "past" ? "What it led to" : "Built on";
     border-color: rgb(255 255 255 / 0.25);
     background: rgb(16 16 19 / 0.55);
     color: rgb(255 255 255 / 0.85);
-  }
-
-  /* Astro's scoped styles don't reach markup injected through <slot />
-     (it belongs to the MDX file, not this component), so the prose rules
-     below target the wrapper class directly rather than relying on scoping. */
-  :global(.project-prose) {
-    font-size: 1rem;
-    line-height: 1.75;
-    color: rgb(255 255 255 / 0.75);
-  }
-
-  @media (min-width: 768px) {
-    :global(.project-prose) {
-      font-size: 1.125rem;
-    }
-  }
-
-  :global(.project-prose > * + *) {
-    margin-top: 1.5em;
-  }
-
-  :global(.project-prose h2) {
-    margin-top: 2.75em;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.2;
-    color: #fff;
-  }
-
-  @media (min-width: 768px) {
-    :global(.project-prose h2) {
-      font-size: 1.75rem;
-    }
-  }
-
-  :global(.project-prose h2:first-child) {
-    margin-top: 0;
-  }
-
-  :global(.project-prose h3) {
-    margin-top: 2em;
-    font-family: var(--font-display);
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #fff;
-  }
-
-  :global(.project-prose a) {
-    color: var(--color-accent-peach);
-    text-underline-offset: 3px;
-  }
-
-  :global(.project-prose a:hover) {
-    text-decoration-thickness: 2px;
-  }
-
-  :global(.project-prose strong) {
-    color: rgb(255 255 255 / 0.92);
-    font-weight: 700;
-  }
-
-  :global(.project-prose ul),
-  :global(.project-prose ol) {
-    padding-left: 1.25em;
-  }
-
-  :global(.project-prose ul) {
-    list-style: disc;
-  }
-
-  :global(.project-prose ol) {
-    list-style: decimal;
-  }
-
-  :global(.project-prose li + li) {
-    margin-top: 0.5em;
-  }
-
-  :global(.project-prose li::marker) {
-    color: var(--color-accent-peach);
-  }
-
-  /* A pull quote earns its weight from scale, not a coloured rule down the
-     side — see craft-floor's ban on decorative left borders. */
-  :global(.project-prose blockquote) {
-    margin-block: 2.5em;
-    border-top: 1px solid rgb(255 255 255 / 0.1);
-    border-bottom: 1px solid rgb(255 255 255 / 0.1);
-    padding-block: 1.5em;
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    line-height: 1.4;
-    color: #fff;
-  }
-
-  @media (min-width: 768px) {
-    :global(.project-prose blockquote) {
-      font-size: 1.5rem;
-    }
-  }
-
-  :global(.project-prose hr) {
-    border: none;
-    border-top: 1px solid rgb(255 255 255 / 0.1);
-  }
-
-  /* A construction marker, not a styled quote or a shipped sentence — kept
-     visually distinct so it can't be mistaken for real copy and stays easy
-     to grep before launch. */
-  :global(.project-prose .content-todo) {
-    border: 1px dashed rgb(255 181 150 / 0.4);
-    background: rgb(255 181 150 / 0.06);
-    padding: 0.9em 1.1em;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    line-height: 1.6;
-    color: var(--color-accent-peach);
   }
 </style>

@@ -1,23 +1,41 @@
 ---
 import { Image } from "astro:assets";
 import { ArrowLeft } from "@lucide/astro";
-import Layout from "../layouts/Layout.astro";
+import Layout from "./Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import Embers from "../components/Embers.astro";
 import { subteams } from "../data/subteams";
 
-// One route rather than three near-identical pages. This is a local array, not a
-// content collection — the site still has no CMS layer and doesn't need one for
-// three entries.
-export function getStaticPaths() {
-  return subteams.map((team) => ({
-    params: { subteam: team.slug },
-    props: { team },
-  }));
+// MDX layout frontmatter, not page props — same contract as ProjectDetail:
+// the page carries only `slug`, and everything drawn below (name, detail,
+// plate, specs, lead) is looked up from `data/subteams.ts` so a subteam page
+// never forks a second copy of facts the About cards already own.
+interface Props {
+  frontmatter: { slug: string };
 }
 
-const { team } = Astro.props;
+const {
+  frontmatter: { slug },
+} = Astro.props;
+
+const team = subteams.find((t) => t.slug === slug);
+if (!team) {
+  throw new Error(
+    `SubteamDetail: no subteam in data/subteams.ts with slug "${slug}"`,
+  );
+}
+
+// Position 0 is the lead by convention (see data/subteams.ts) — read here
+// rather than from a `lead` field so the name exists in exactly one place.
+const lead = team.members[0];
+
+// Rendered up front so an empty MDX body leaves no trace: a subteam with no
+// write-up yet has to produce exactly the page it produced when these were one
+// generated route, not a stray rule with 4rem of padding under it.
+const prose = Astro.slots.has("default")
+  ? (await Astro.slots.render("default")).trim()
+  : "";
 ---
 
 <Layout
@@ -101,18 +119,29 @@ const { team } = Astro.props;
           }
         </dl>
 
-        <div>
-          <p
-            class="font-mono text-xs uppercase tracking-[0.18em] text-white/45"
-          >
-            Subteam lead
-          </p>
-          <p class="mt-2 font-display text-base font-bold text-white">
-            {team.lead}
-          </p>
-          <p class="mt-1 font-mono text-xs text-white/60">{team.study}</p>
-        </div>
+        {
+          lead && (
+            <div>
+              <p class="font-mono text-xs uppercase tracking-[0.18em] text-white/45">
+                Subteam lead
+              </p>
+              <p class="mt-2 font-display text-base font-bold text-white">
+                {lead.name}
+              </p>
+              <p class="mt-1 font-mono text-xs text-white/60">{lead.study}</p>
+            </div>
+          )
+        }
       </div>
+
+      {
+        prose && (
+          <div
+            class="page-prose mt-14 border-t border-white/10 pt-10 md:mt-20"
+            set:html={prose}
+          />
+        )
+      }
 
       <nav class="mt-16 flex flex-wrap gap-3 border-t border-white/10 pt-10">
         {
