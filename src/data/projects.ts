@@ -8,8 +8,7 @@
 //
 // TODO(content): still outstanding from the team —
 //   1. Real year ranges for both projects. Nothing here should guess a date.
-//   2. Workstream names and one-line summaries for both projects.
-//   3. Narrative write-ups for the /projects/eno and /projects/prometheus MDX
+//   2. Narrative write-ups for the /projects/eno and /projects/prometheus MDX
 //      pages (src/pages/projects/*.mdx) — currently placeholder prose marked
 //      TODO(content) in those files.
 
@@ -81,9 +80,6 @@ export interface Project {
   detailHref?: string;
 }
 
-const TODO_SUMMARY =
-  "TODO — one line describing this workstream. Replace before publishing.";
-
 export const projects: Project[] = [
   {
     slug: "eno",
@@ -100,9 +96,24 @@ export const projects: Project[] = [
     outcome:
       "Cold flow testing exposed too many problems with the clamshell design — among other issues — to carry it forward. The team redrafted rather than patched it, and Eno's test data became the foundation Prometheus is designed from.",
     workstreams: [
-      { index: "01", name: "TODO — workstream name", summary: TODO_SUMMARY },
-      { index: "02", name: "TODO — workstream name", summary: TODO_SUMMARY },
-      { index: "03", name: "TODO — workstream name", summary: TODO_SUMMARY },
+      {
+        index: "01",
+        name: "Engine Control & Measurement Electronics",
+        summary:
+          "A chamber-pressure tap routed through the injector centerline, plus the sensors and wiring that read it during cold flow.",
+      },
+      {
+        index: "02",
+        name: "Tanks & Feed System",
+        summary:
+          "Nitrogen-pressurized kerosene and N2O tanks, run pressure-fed rather than pump-fed to keep the system simple.",
+      },
+      {
+        index: "03",
+        name: "Engine Design",
+        summary:
+          "The regeneratively cooled clamshell chamber and cone injector, atomizing kerosene and N2O by collision at the injector face.",
+      },
     ],
     gallery: [
       {
@@ -141,9 +152,36 @@ export const projects: Project[] = [
     objective:
       "A clean-sheet redesign built on what Eno measured, aimed at getting from drawing to hot-fire test vehicle in as little time as possible.",
     workstreams: [
-      { index: "01", name: "TODO — workstream name", summary: TODO_SUMMARY },
-      { index: "02", name: "TODO — workstream name", summary: TODO_SUMMARY },
-      { index: "03", name: "TODO — workstream name", summary: TODO_SUMMARY },
+      {
+        index: "01",
+        name: "Engine Core",
+        summary:
+          "The regeneratively cooled chamber and injector that mix and burn propellant to produce thrust.",
+      },
+      {
+        index: "02",
+        name: "Electropump",
+        summary:
+          "An electrically driven pump, plus the motor and controller that run it, feeding propellant to the engine at high pressure.",
+      },
+      {
+        index: "03",
+        name: "Flight Tanks & Feed System",
+        summary:
+          "The tanks that carry propellant in flight and the plumbing that routes it from tank to engine.",
+      },
+      {
+        index: "04",
+        name: "Ground System",
+        summary:
+          "The igniter, propellant fill system, and test stand/deluge that support ground testing and launch.",
+      },
+      {
+        index: "05",
+        name: "Controller & Active Pressurization",
+        summary:
+          "The master controller that sequences a firing, and the pressurization valves and power that hold tank pressure in range.",
+      },
     ],
     gallery: [
       {
