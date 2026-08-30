@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import { Rocket, ArrowRight } from "@lucide/astro";
 import { projects } from "../data/projects";
+import EngineMark from "./EngineMark.astro";
 
 // A rail, not a grid of cards: these are sequential and dated, and the parent
 // site already reaches for a rail whenever the left column is a label
@@ -14,28 +15,44 @@ import { projects } from "../data/projects";
 
 <section id="projects" class="relative bg-night">
   <div class="mx-auto max-w-7xl px-6 pt-24 pb-24 md:px-12 md:pt-32 md:pb-32">
-    <div class="flex items-center gap-2">
-      <Rocket class="size-5 text-accent-orange md:size-6" />
-      <p
-        class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
-      >
-        PROJECTS
-      </p>
+    <div class="lg:grid lg:grid-cols-2 lg:items-center lg:gap-10">
+      <div>
+        <div class="flex items-center gap-2">
+          <Rocket class="size-5 text-accent-orange md:size-6" />
+          <p
+            class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
+          >
+            PROJECTS
+          </p>
+        </div>
+        <h2
+          class="mt-2 max-w-3xl text-balance text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
+        >
+          Every project builds on the failures of the last — because mistakes
+          are the path to progress.
+        </h2>
+        <p
+          class="mt-6 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base"
+        >
+          Each project has its own workstreams and its own hardware, and each is
+          pointed at the same test — a liquid engine the team can take to a hot
+          fire. Reaching it takes years, and a project that never gets there
+          still hands the next one a design and a stack of test data to start
+          from.
+        </p>
+      </div>
+
+      {
+        /* Only earns its keep once the header has room to spare — below lg
+          the eyebrow/heading/paragraph already fill the row, so this stays
+          out rather than competing with them. Centered in its own column
+          rather than pinned to the container edge, so it sits in the middle
+          of the space it's filling instead of the corner of it. */
+      }
+      <div class="hidden lg:flex lg:justify-center">
+        <EngineMark class="lg:w-40 xl:w-48" />
+      </div>
     </div>
-    <h2
-      class="mt-2 max-w-3xl text-balance text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
-    >
-      Every project builds on the failures of the last — because mistakes are
-      the path to progress.
-    </h2>
-    <p
-      class="mt-6 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base"
-    >
-      Each project has its own workstreams and its own hardware, and each is
-      pointed at the same test — a liquid engine the team can take to a hot
-      fire. Reaching it takes years, and a project that never gets there still
-      hands the next one a design and a stack of test data to start from.
-    </p>
 
     {/* Ordered, because the sequence is the content: this is a chronology. */}
     <ol class="mt-16 md:mt-20">

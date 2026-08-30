@@ -66,9 +66,9 @@ export const subteams: Subteam[] = [
     index: "02",
     name: "Fluid Systems",
     summary:
-      "Propellant feed, pressurization, and plumbing that get kerosene and N2O to the chamber safely.",
+      "Propellant feed, pressurization, and plumbing that gets the propellant and oxidiser to the chamber safely.",
     detail:
-      "Fluid Systems owns the path from tank to injector: pressurisation, propellant routing, and the valves and interlocks that make a test sequence safe to run and, more importantly, safe to abort.",
+      "Fluid Systems owns the path from tank to injector: pressurization, propellant routing, and the valves and interlocks that make a test sequence safe to run and, more importantly, safe to abort.",
     members: [
       {
         name: "Ethan Rosenfeld",
