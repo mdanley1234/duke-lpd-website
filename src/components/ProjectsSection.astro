@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 import { Rocket, ArrowRight } from "@lucide/astro";
 import { projects } from "../data/projects";
-import EngineMark from "./EngineMark.astro";
+import MachDiamonds from "./MachDiamonds.astro";
 
 // A rail, not a grid of cards: these are sequential and dated, and the parent
 // site already reaches for a rail whenever the left column is a label
@@ -10,48 +10,43 @@ import EngineMark from "./EngineMark.astro";
 // markers are the only things added on top of that idiom.
 //
 // No ember field here. AboutSection above already opens with one, and repeating
-// it would make the two sections read as the same entrance twice.
+// it would make the two sections read as the same entrance twice. The section
+// closes on its own motif instead: a mach-diamond field standing in the
+// background, so the page's last section fades out on the same exhaust the
+// team is chasing on the test stand.
 ---
 
-<section id="projects" class="relative bg-night">
-  <div class="mx-auto max-w-7xl px-6 pt-24 pb-24 md:px-12 md:pt-32 md:pb-32">
-    <div class="lg:grid lg:grid-cols-2 lg:items-center lg:gap-10">
-      <div>
-        <div class="flex items-center gap-2">
-          <Rocket class="size-5 text-accent-orange md:size-6" />
-          <p
-            class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
-          >
-            PROJECTS
-          </p>
-        </div>
-        <h2
-          class="mt-2 max-w-3xl text-balance text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
-        >
-          Every project builds on the failures of the last — because mistakes
-          are the path to progress.
-        </h2>
-        <p
-          class="mt-6 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base"
-        >
-          Each project has its own workstreams and its own hardware, and each is
-          pointed at the same test — a liquid engine the team can take to a hot
-          fire. Reaching it takes years, and a project that never gets there
-          still hands the next one a design and a stack of test data to start
-          from.
-        </p>
-      </div>
+<section id="projects" class="relative overflow-hidden bg-night">
+  <MachDiamonds class="pointer-events-none absolute inset-x-0 bottom-0" />
 
-      {
-        /* Only earns its keep once the header has room to spare — below lg
-          the eyebrow/heading/paragraph already fill the row, so this stays
-          out rather than competing with them. Centered in its own column
-          rather than pinned to the container edge, so it sits in the middle
-          of the space it's filling instead of the corner of it. */
-      }
-      <div class="hidden lg:flex lg:justify-center">
-        <EngineMark class="lg:w-40 xl:w-48" />
-      </div>
+  <div
+    class="relative z-10 mx-auto max-w-7xl px-6 pt-24 pb-24 md:px-12 md:pt-32 md:pb-32"
+  >
+    <div class="flex items-center gap-2">
+      <Rocket class="size-5 text-accent-orange md:size-6" />
+      <p
+        class="font-display text-xs font-bold tracking-[0.14em] text-accent-peach md:text-base"
+      >
+        PROJECTS
+      </p>
+    </div>
+    {
+      /* Split masthead, matching AboutSection above: heading and body sit
+        side by side rather than stacked. Collapses to a stack below md. */
+    }
+    <div class="mt-3 grid gap-6 md:grid-cols-2 md:gap-12 lg:gap-20">
+      <h2
+        class="text-balance text-white font-display text-[clamp(28px,3.4vw,52px)] font-bold leading-tight"
+      >
+        The engines we've built so far.
+      </h2>
+      <p class="text-sm leading-relaxed text-white/80 md:pt-2 md:text-base">
+        Eno was supposed to reach a hot fire, but cold-flow testing turned up
+        more problems than were worth patching, so the team started over.
+        Prometheus is the engine that came out of that restart, built on exactly
+        what the testing showed. Below, each workstream is real hardware someone
+        on the team designed, machined, or wired themselves.
+      </p>
     </div>
 
     {/* Ordered, because the sequence is the content: this is a chronology. */}

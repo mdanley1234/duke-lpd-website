@@ -1,0 +1,124 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+// Rows of shock/"mach" diamonds stacked bottom to top, standing in for a
+// plume running up through the section's own background: biggest, brightest,
+// and most tightly packed at the bottom — closest to the engine — cooling,
+// shrinking, and spreading out row by row until the pattern dissolves into
+// the section's night background. Pure background texture, behind the
+// content column (see ProjectsSection.astro's z-10 wrapper).
+// One tile width for every row, so the columns actually line up — row 2 sits
+// in the same phase as row 0, row 3 the same as row 1, and so on, like a
+// brick course repeating every other row rather than each row inventing its
+// own spacing. What changes per row is just the diamond drawn inside that
+// fixed grid, shrinking, cooling, and fading on the way up.
+const TILE = 130;
+
+const ROWS = [
+  { height: 80, color: "#ed6822", opacity: 0.6 },
+  { height: 66, color: "#ff8a3d", opacity: 0.45 },
+  { height: 54, color: "#ffb596", opacity: 0.32 },
+  { height: 44, color: "#ffd9c2", opacity: 0.2 },
+  { height: 36, color: "#fff5ec", opacity: 0.11 },
+  { height: 30, color: "#fff5ec", opacity: 0.05 },
+].map((row, i) => ({
+  ...row,
+  id: `mach-row-${i}`,
+  tile: TILE,
+  half: +(row.height * 0.45).toFixed(1),
+  // Odd rows are staggered half a tile — the 180°-offset repeat, not a fresh
+  // offset per row.
+  offset: i % 2 === 1 ? TILE / 2 : 0,
+}));
+
+// Every row keeps its diamond centered on its own row (below), and the
+// *whole stack* is pushed down by half the bottom row's height instead —
+// so the bottom row's centerline lands exactly on the section/footer split
+// (only its top half shows, clipped by the section) while every row above
+// it shifts down by that same amount, preserving the spacing between rows
+// rather than opening up a gap above just the bottom one.
+const BOTTOM_SHIFT = ROWS[0].height / 2;
+---
+
+<div
+  class={`diamond-field ${className ?? ""}`}
+  style={`--shift: ${BOTTOM_SHIFT}px`}
+  aria-hidden="true"
+>
+  {
+    ROWS.map((row) => {
+      const cx = row.tile / 2;
+      const cy = row.height / 2;
+      const outer = `${cx},${cy - row.half * 2} ${cx + row.half * 2},${cy} ${cx},${cy + row.half * 2} ${cx - row.half * 2},${cy}`;
+      const inner = `${cx},${cy - row.half} ${cx + row.half},${cy} ${cx},${cy + row.half} ${cx - row.half},${cy}`;
+      return (
+        <div class="diamond-row" style={`height:${row.height}px`}>
+          <svg width="100%" height="100%" preserveAspectRatio="none">
+            <defs>
+              <pattern
+                id={row.id}
+                width={row.tile}
+                height={row.height}
+                patternUnits="userSpaceOnUse"
+                x={row.offset}
+              >
+                <polygon points={outer} fill={row.color} opacity={0.16} />
+                <polygon points={inner} fill={row.color} />
+              </pattern>
+            </defs>
+            <rect
+              width="100%"
+              height="100%"
+              fill={`url(#${row.id})`}
+              opacity={row.opacity}
+            />
+          </svg>
+        </div>
+      );
+    })
+  }
+</div>
+
+<style>
+  .diamond-field {
+    display: flex;
+    /* Rows are authored bottom-first (index 0 = biggest/brightest); reversed
+       here so that first row lands at the bottom of the stack visually, and
+       so that clipping the box's own height (below) trims the faint top rows
+       rather than the bottom one. */
+    flex-direction: column-reverse;
+    overflow: hidden;
+    /* Drops the bottom row's centerline onto the section/footer split; see
+       BOTTOM_SHIFT above. Relies on the section's own overflow-hidden
+       (ProjectsSection.astro) to actually crop what this pushes past it. */
+    transform: translateY(var(--shift));
+    /* Belt and suspenders on top of the per-row opacity taper: guarantees a
+       clean dissolve into the section background with no visible top edge,
+       whatever the row count or viewport ends up doing to it. */
+    mask-image: linear-gradient(to top, black 0%, black 45%, transparent 100%);
+    -webkit-mask-image: linear-gradient(
+      to top,
+      black 0%,
+      black 45%,
+      transparent 100%
+    );
+  }
+
+  /* The full stack (~310px) is tuned for desktop's roomier footer padding.
+     Capped here so the smallest, faintest rows are what gets trimmed on a
+     phone screen rather than the biggest row crowding the button above it. */
+  @media (max-width: 640px) {
+    .diamond-field {
+      max-height: 130px;
+    }
+  }
+
+  .diamond-row {
+    width: 100%;
+    flex-shrink: 0;
+  }
+</style>

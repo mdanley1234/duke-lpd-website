@@ -7,8 +7,7 @@
 // project's result is the reason the next one looks the way it does.
 //
 // TODO(content): still outstanding from the team —
-//   1. Real year ranges for both projects. Nothing here should guess a date.
-//   2. Narrative write-ups for the /projects/eno and /projects/prometheus MDX
+//   1. Narrative write-ups for the /projects/eno and /projects/prometheus MDX
 //      pages (src/pages/projects/*.mdx) — currently placeholder prose marked
 //      TODO(content) in those files.
 
@@ -88,9 +87,9 @@ export const projects: Project[] = [
     coverAlt:
       "The assembled clamshell engine resting on a workbench, bolt holes running the length of the flange where its two machined halves meet.",
     tagline: "The clamshell engine, and the cold flow campaign that ended it.",
-    years: "20XX–20XX",
+    years: "2023–2026",
     status: "past",
-    statusLabel: "Superseded",
+    statusLabel: "Concluded",
     objective:
       "Take a clamshell-architecture engine from design through to a hot fire.",
     outcome:
@@ -146,7 +145,7 @@ export const projects: Project[] = [
     coverAlt:
       "The regeneratively cooled chamber standing upright on a workbench, cooling channels running the full length of its outer wall.",
     tagline: "A regeneratively cooled clean-sheet redesign, aimed at hot fire.",
-    years: "20XX–present",
+    years: "2026–present",
     status: "active",
     statusLabel: "Active",
     objective:
