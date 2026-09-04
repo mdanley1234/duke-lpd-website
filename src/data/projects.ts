@@ -45,17 +45,16 @@ export interface Project {
   slug: string;
   name: string;
   /**
-   * Card face on /projects. Imported rather than globbed: PhotoWall's drop-folder
-   * glob suits an unordered wall, but a cover is a deliberate pick per project.
+   * Cover photo for the homepage timeline and the detail page's hero banner.
+   * Imported rather than globbed: PhotoWall's drop-folder glob suits an
+   * unordered wall, but a cover is a deliberate pick per project.
    */
   cover: ImageMetadata;
-  /**
-   * Alt text for `cover`. Needed because the homepage timeline stands the
-   * cover on its own; ProjectCard leaves it `alt=""` since there the image
-   * sits inside a link the project name already names.
-   */
+  /** Alt text for `cover` — the homepage timeline and the detail page's hero
+   * banner both stand the cover on its own, so it needs real alt text rather
+   * than living inside a link the project name already names. */
   coverAlt: string;
-  /** One line under the name on the card. Shorter than `objective`. */
+  /** One line under the name on the detail page hero. Shorter than `objective`. */
   tagline: string;
   /** Free-form string with an en dash, matching duke-aero-website's `years`. */
   years: string;
@@ -73,9 +72,9 @@ export interface Project {
    * imports, same reasoning as `cover` — a small deliberate set, not a glob.
    */
   gallery: GalleryPhoto[];
-  /** `/projects/${slug}`. Undefined leaves the card face inert (renders a
-   * `<div>` rather than a dead link) for any future project without a
-   * detail page yet. */
+  /** `/projects/${slug}`. Undefined falls back to linking the homepage
+   * timeline's "Learn more" button back to its own section, so no link on
+   * the site points at a page that isn't built. */
   detailHref?: string;
 }
 

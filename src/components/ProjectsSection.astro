@@ -56,7 +56,7 @@ import MachDiamonds from "./MachDiamonds.astro";
           <li
             class:list={[
               "project relative pl-7 md:grid md:grid-cols-[7rem_1fr] md:gap-x-12 md:pl-0",
-              i === projects.length - 1 ? "is-last pb-0" : "pb-16 md:pb-20",
+              i === projects.length - 1 ? "is-last pb-0" : "pb-28 md:pb-36",
             ]}
           >
             <span class="node" data-status={project.status} aria-hidden="true">
@@ -111,22 +111,13 @@ import MachDiamonds from "./MachDiamonds.astro";
                 </div>
 
                 <div class="mt-6 xl:col-start-1 xl:row-start-1 xl:mt-0">
+                  {/* Objective and outcome read as one paragraph here, same as an
+                      active project with no outcome yet — the labelled "Outcome"
+                      callout is the project detail page's job, where there's room
+                      to give it its own beat. */}
                   <p class="max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
-                    {project.objective}
+                    {project.objective} {project.outcome}
                   </p>
-
-                  {/* Only a finished project has one. Labelled rather than set in a
-                      bordered callout — the label carries the shift in register. */}
-                  {project.outcome && (
-                    <div class="mt-5 max-w-2xl">
-                      <p class="font-mono text-[10px] uppercase tracking-[0.2em] text-white/60">
-                        Outcome
-                      </p>
-                      <p class="mt-2 text-sm leading-relaxed text-white/70">
-                        {project.outcome}
-                      </p>
-                    </div>
-                  )}
                   <ul class="mt-7 border-t border-white/10">
                     {project.workstreams.map((workstream) => (
                       <li class="grid gap-x-5 gap-y-1 border-b border-white/10 py-4 sm:grid-cols-[2rem_minmax(0,11rem)_1fr]">
@@ -144,10 +135,10 @@ import MachDiamonds from "./MachDiamonds.astro";
                   </ul>
 
                   {/* Both projects have a detailHref now, so this resolves to
-                  their MDX page; the /projects fallback only guards a future
-                  project added without a detail page yet. */}
+                  their MDX page; the fallback to this same section only guards
+                  a future project added without a detail page yet. */}
                   <a
-                    href={project.detailHref ?? "/projects"}
+                    href={project.detailHref ?? "/#projects"}
                     class="learn-more group/more mt-7 inline-flex items-center gap-2 border border-white/15 px-4 py-3 font-display text-sm font-bold text-white transition-colors hover:border-accent-orange hover:bg-accent-orange hover:text-night"
                   >
                     Learn more about {project.name}
@@ -173,26 +164,112 @@ import MachDiamonds from "./MachDiamonds.astro";
     --spine-x: 0px;
   }
 
+  /* Two layers: a dim static rail, plus a bright comet-shaped band that
+     travels the full length of the rail on a loop — the "shooting light"
+     read as energy running down the timeline. The comet is authored bottom-
+     heavy (brightest near 90%, sharp cutoff after) so the leading edge reads
+     as a point with a trail behind it, not a symmetric blob. Sized in a
+     fixed px band rather than tied to the element's own height, so the
+     travel distance (padded 160px past each end) works the same on Eno's
+     shorter segment and Prometheus's much taller one — they won't be
+     phase-locked, but each reads as a continuous flow on its own rail. */
   .project::before {
     content: "";
     position: absolute;
-    top: 0;
+    /* Starts at the node's own centerline (top: 0.3rem + half its 0.6rem
+       height) instead of the li's top edge, so the rail — and the light
+       traveling on it — originates from inside the dot rather than poking
+       out above it. */
+    top: 0.6rem;
     bottom: 0;
     left: var(--spine-x);
     width: 1px;
-    background: rgb(255 255 255 / 0.12);
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.12)),
+      linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgb(237 104 34 / 0.85) 75%,
+        #fff5ec 92%,
+        transparent 100%
+      );
+    background-size:
+      100% 100%,
+      100% 160px;
+    background-repeat: no-repeat, no-repeat;
+    background-position:
+      0 0,
+      0 -160px;
+    animation: spine-flow 3.6s linear infinite;
+  }
+
+  @keyframes spine-flow {
+    from {
+      background-position:
+        0 0,
+        0 -160px;
+    }
+    to {
+      background-position:
+        0 0,
+        0 calc(100% + 160px);
+    }
   }
 
   /* The last project is still running, so its segment fades out downward rather
-     than stopping on a hard tick — the timeline runs off into work not done. */
+     than stopping on a hard tick — the timeline runs off into work not done.
+     A mask rather than another background layer, so it fades the rail and
+     the traveling light together instead of just sitting on top of them. */
   .project.is-last::before {
     bottom: -4rem;
-    background: linear-gradient(
+    mask-image: linear-gradient(
       to bottom,
-      rgb(255 255 255 / 0.12) 0%,
-      rgb(255 255 255 / 0.12) 45%,
+      black 0%,
+      black 45%,
       transparent 100%
     );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 0%,
+      black 45%,
+      transparent 100%
+    );
+  }
+
+  /* A floating arrowhead centered on the page, in the (now much bigger) gap
+     between a finished project and the one it led to — a small "keep
+     reading down" cue marking the handoff, rather than leaving that much
+     empty space feeling dead. Pure CSS triangle, no icon import, to match
+     how .node is already just a hand-drawn shape. Skipped on the last
+     project since nothing follows it to hand off to. */
+  .project:not(.is-last)::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 3.5rem;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 16px solid var(--color-accent-orange);
+    animation: arrow-float 2.6s ease-in-out infinite;
+  }
+
+  @keyframes arrow-float {
+    0%,
+    100% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-50%, 8px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project::before,
+    .project:not(.is-last)::after {
+      animation: none;
+    }
   }
 
   .node {
@@ -250,6 +327,10 @@ import MachDiamonds from "./MachDiamonds.astro";
       /* Column one (7rem) plus half the 3rem gap: the spine lands in the gutter
          rather than against either column's text. */
       --spine-x: 8.5rem;
+    }
+
+    .project:not(.is-last)::after {
+      bottom: 4.5rem;
     }
   }
 

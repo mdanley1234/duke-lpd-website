@@ -2,3 +2,131 @@
 layout: ../layouts/SubteamDetail.astro
 slug: controls
 ---
+
+import Figure from "../components/Figure.astro";
+import boardV1 from "../assets/subteams/controls/control-board-v1.webp";
+import interfaceShot from "../assets/subteams/controls/ground-station-interface.webp";
+import testPlatform from "../assets/subteams/controls/test-platform.webp";
+import boardV2 from "../assets/subteams/controls/control-board-v2.webp";
+import v2ControlLayout from "../assets/subteams/controls/v2-control-layout.webp";
+import v2SamplingLayout from "../assets/subteams/controls/v2-sampling-layout.webp";
+
+<div class="content-block">
+
+## From wired to integrated
+
+Every earlier cold flow ran through a wired setup: a mess of cables, a handful
+of protoboards, an Arduino UNO, and an external DAQ, all driven from a laptop
+running LabVIEW over a long USB run. It worked, but it cost hours of wiring and
+troubleshooting before each test, and a liquid engine doesn't forgive a flaky
+connection the way a bench experiment does. Electrical & Controls exists to
+replace that pile of wires with hardware the team designed, built, and trusts.
+
+</div>
+
+<div class="content-block">
+
+## Liquid Propulsion Control Board V1.0
+
+V1.0 folds sensing, actuation, and power into a single board built around an
+ESP32-C3, talking to a laptop over WiFi instead of a USB tether — the same link
+carries telemetry out and servo commands in, so the DAQ and its cabling come out
+of the test setup entirely.
+
+Sensing runs through three 8-channel TLA2518 ADCs sampled over SPI, with enough
+of their combined 24 channels broken out to give the board its twelve-channel
+pressure-transducer interface, each channel hardware-averaged to cut noise
+before it ever reaches software. Actuation runs through a PCA9685 PWM driver,
+offloading servo timing from the MCU entirely and giving the board's
+eight-channel servo bus 12-bit resolution on every valve. Separate buck
+converters keep servo power and logic power on their own rails off the same 12 V
+input, and every field connection — PTs, servos, power — lands on a keyed JST
+connector, so a cable can't go in backwards during a rushed pre-test hookup.
+
+<Figure
+  src={boardV1}
+  alt="The Liquid Propulsion Control Board V1.0 standing upright on a workbench, showing the twelve-channel PT interface along the top edge and the eight-channel servo bus along the bottom."
+  caption="Board V1.0, off the platform — PT interface on top, servo bus below."
+/>
+
+</div>
+
+<div class="content-block">
+
+## Ground control
+
+The board pairs with a Python ground-station application that gives the operator
+a command console, live per-channel servo state, and a real-time plot of all
+twelve pressure channels running through a configurable moving average. Valve
+actuation can be driven live from the console or from a timed sequence script,
+so an abort or a firing sequence runs the same way every time instead of
+depending on an operator's timing. Every run — telemetry and actuator state
+alike — logs to CSV for teardown after the test.
+
+<Figure
+  src={interfaceShot}
+  alt="The ground-station software: a command console, eight servo status indicators, and twelve pressure-transducer toggles."
+  caption="The ground-station interface, streaming telemetry and taking servo commands over WiFi."
+/>
+
+</div>
+
+<div class="content-block">
+
+## What cold flow found
+
+Running V1.0 through cold flow cut electrical setup from hours to minutes and
+more than doubled pressure-transducer polling, from 40 Hz to 100 Hz, once
+sampling moved onto dedicated hardware instead of a DAQ. Testing also found the
+board's limits: servo current capacity was undersized for sustained actuation,
+and analog routing on a single board left the pressure readings more susceptible
+to noise than the team wanted. Both are the reason there's a V2.0.
+
+<Figure
+  src={testPlatform}
+  alt="The Liquid Propulsion Control Board mounted under the propellant test platform, wired into the tanks, valves, and pressure gauge above it."
+  caption="V1.0 mounted under the test platform where that cold flow campaign ran."
+/>
+
+</div>
+
+<div class="content-block">
+
+## Board V2.0
+
+V2.0 splits the single board in two — a control board carrying the MCU and servo
+bus, and a separate sampling board carrying pressure, thermocouple, and
+load-cell inputs — so switching noise from servo drive never shares a board with
+the analog signals it would otherwise corrupt. The MCU moves to an ESP32-S3 with
+onboard LoRa and local data logging, adding a wireless fallback and an on-board
+record independent of the ground-station link. Sampling gains thermocouple
+channels through an AD8495 amplifier and load-cell channels through an HX711
+ADC, and servo power moves to a higher-current buck converter sized for the draw
+V1.0 undersized. The two-board stack is built and is now being brought up ahead
+of its first cold flow.
+
+<Figure
+  src={boardV2}
+  alt="Board V2.0, a two-board stack — a sampling board carrying PT, thermocouple, and load-cell inputs wired beside a control board carrying the MCU and servo bus — mounted on a 3D-printed panel."
+  caption="V2.0 assembled — sampling board and control board stacked on one panel."
+/>
+
+<div class="figure-pair">
+  <Figure
+    src={v2ControlLayout}
+    alt="PCB layout of the V2.0 control board, showing the MCU footprint, power circuitry, and eight-channel servo bus."
+    caption="Control board layout — MCU, power, and the servo bus."
+  />
+  <Figure
+    src={v2SamplingLayout}
+    alt="PCB layout of the V2.0 sampling board, showing twelve pressure-transducer inputs, four thermocouple inputs, and four load-cell inputs."
+    caption="Sampling board layout — PT, thermocouple, and load-cell inputs."
+  />
+</div>
+
+<div class="content-todo">
+  TODO(content): confirm current V2.0 status (bring-up vs. first test) before
+  this goes live, and update the paragraph above to match.
+</div>
+
+</div>

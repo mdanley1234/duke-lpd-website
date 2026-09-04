@@ -1,0 +1,33 @@
+---
+// Inline photography for MDX prose — the same framed-image treatment used
+// for the plate and (formerly) the end-of-page gallery, sized to sit inside
+// a `.content-block` next to the paragraph it illustrates rather than in a
+// separate block of its own.
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  caption?: string;
+}
+
+const { src, alt, caption } = Astro.props;
+---
+
+<figure class="block-figure border border-white/10 bg-white/[0.02] p-2">
+  <Image
+    src={src}
+    alt={alt}
+    widths={[480, 800, 1100]}
+    sizes="(min-width: 768px) 640px, 92vw"
+    class="h-auto w-full"
+  />
+  {
+    caption && (
+      <figcaption class="mt-2 px-1 pb-1 text-xs leading-relaxed text-white/55">
+        {caption}
+      </figcaption>
+    )
+  }
+</figure>

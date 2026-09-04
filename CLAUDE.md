@@ -12,9 +12,9 @@ its own repo/deploy since it has its own domain. Ships as a fully static site to
 Cloudflare (via `@astrojs/cloudflare`, `imageService: "compile"` — there is no
 worker/runtime image endpoint, so all image processing happens at build time).
 
-It started as a single page and has since grown a few routes (a `/projects`
-index and one page per subteam), but it is still deliberately small: local data
-files instead of content collections, no MDX, no CMS.
+It started as a single page and has since grown a few routes (a detail page per
+project and one page per subteam), but it is still deliberately small: local
+data files instead of content collections, no CMS.
 
 ## Relationship to duke-aero-website
 
@@ -34,9 +34,9 @@ Key differences from that reference, by design:
   (`lpd.dukerocketry.com`), not the whole club. The main site is multi-page
   (`team`, `sponsors`, `join`, `donate`, `past-projects/[id]` with MDX content
   collections, EXIF-tagged photo galleries, a sponsor marquee, etc.); this site
-  has a homepage, a `/projects` index, and three subteam pages, with **no
-  content collections, no MDX, and no sponsors/team/join infrastructure**. Don't
-  pull that machinery in unless the site's scope actually grows to need it — two
+  has a homepage, a detail page per project, and three subteam pages, with **no
+  content collections and no sponsors/team/join infrastructure**. Don't pull
+  that machinery in unless the site's scope actually grows to need it — two
   projects and three subteams do not earn a content collection.
 - **Branding**: same visual system (dark theme, same font stack, same logo) but
   positioned as "Duke AERO — Liquid Propulsion" rather than "Duke AERO," and
@@ -90,23 +90,24 @@ absolute OG/canonical tags, since `site` in `astro.config.mjs` is hard-coded to
 the production domain.
 
 Note that Cloudflare's asset server canonicalizes to a trailing slash, so
-`/projects` **307s** to `/projects/`. Internal links are currently written
-without the trailing slash and take that redirect.
+`/team` **307s** to `/team/`. Internal links are currently written without the
+trailing slash and take that redirect.
 
 ## Architecture
 
-Nine routes, all wrapped by `src/layouts/Layout.astro` (head/meta/OG
+Eight routes, all wrapped by `src/layouts/Layout.astro` (head/meta/OG
 tags/fonts). The two detail layouts — `ProjectDetail.astro` and
 `SubteamDetail.astro` — sit between `Layout` and an MDX page, taking only a
 `slug` in that page's frontmatter and looking the rest up from the data files:
 
 - `src/pages/index.astro` — `Hero` → `AboutSection` → `PhotoWall` →
   `ProjectsSection` → `Footer`. `Header.astro` is imported inside `Hero` rather
-  than by the page, since it's positioned fixed over the hero.
-- `src/pages/projects/index.astro` — the projects index. Mirrors the _structure_
-  of duke-aero-website's `past-projects/index.astro` (centred eyebrow →
-  `text-gradient-metal` H1 → intro line → card grid) in this site's palette.
-  Imports `Header`/`Footer` directly, as all non-home pages do.
+  than by the page, since it's positioned fixed over the hero. There's no
+  standalone `/projects` index — the homepage timeline (`ProjectsSection`, an
+  `id="projects"` section) is the only project listing on the site, and every
+  internal "all projects" link points at `/#projects` rather than a separate
+  route. The nav itself has no generic "Projects" link, just `Prometheus` →
+  `/projects/prometheus` since that's the one currently running.
 - `src/pages/projects/eno.mdx`, `src/pages/projects/prometheus.mdx` — the two
   project detail pages, via `src/layouts/ProjectDetail.astro`.
 - `src/pages/combustion.mdx`, `src/pages/fluids.mdx`, `src/pages/controls.mdx` —
@@ -130,13 +131,11 @@ Key patterns to follow when extending this site:
   `tailwind.config.js`). Custom design tokens (colors, fonts) are defined there
   as CSS variables under `@theme`. Component-scoped CSS lives in `<style>`
   blocks in the `.astro` files that need it (see `Header.astro`,
-  `ProjectCard.astro`, `404.astro`).
+  `ProjectsSection.astro`, `404.astro`).
 - **Client-side JS**: kept minimal and vanilla, inline in `<script>` tags scoped
   to the component that needs it. Only two components ship any: `Header.astro`
   (scroll state, mobile menu) and `Embers.astro` (parallax). Prefer a platform
-  element over a script — `ProjectCard.astro`'s subsystem disclosure is a native
-  `<details>` precisely so it costs no JS and gets keyboard and screen-reader
-  behaviour for free. No framework/islands are used.
+  element over a script where one will do — no framework/islands are used.
 - **Images/assets**: static assets live in `src/assets/` and are imported as
   modules so Astro's build-time image optimization applies (see `astro:assets`'s
   `<Image>` and `getImage()` usage in `Hero.astro` and `Layout.astro`). Files in
@@ -161,22 +160,21 @@ Key patterns to follow when extending this site:
 ### Projects data model
 
 `src/data/projects.ts` drives both the homepage timeline
-(`ProjectsSection.astro`, a chronological rail, oldest first) and the
-`/projects` card grid (`ProjectCard.astro`, newest first — there the grid is an
-index, so it leads with what's current).
+(`ProjectsSection.astro`, a chronological rail, oldest first) and each project's
+own detail page (via `ProjectDetail.astro`) — there's no separate card-grid
+index; the timeline is the only listing.
 
 Two optional fields are forward-declarations, and both are designed to degrade
 rather than break:
 
-- `Project.detailHref` — when set, `ProjectCard`'s face becomes a link and the
-  homepage "Learn more" buttons point at it. While undefined the card face
-  renders as a `<div>` and the buttons fall back to `/projects`, so no link on
-  the site points at a page that isn't built.
+- `Project.detailHref` — when set, the homepage "Learn more" buttons point at
+  it. While undefined the buttons fall back to `/#projects` (this same section),
+  so no link on the site points at a page that isn't built.
 - `Workstream.href` — when set, a subsystem row becomes a link with a hover
   arrow; otherwise it renders as plain text.
 
-Set `detailHref` to `/projects/${slug}` if and when per-project detail pages are
-added; `slug` already exists for that purpose.
+Both current projects already have `detailHref` set to `/projects/${slug}`; the
+fallback only guards a future project added without a detail page yet.
 
 ## Before this goes live
 
@@ -186,8 +184,8 @@ added; `slug` already exists for that purpose.
 - Decide whether to keep the shared Duke AERO favicon/logo or use a dedicated
   LPD mark.
 - **Content still outstanding from the team** (marked `TODO(content)` in
-  `src/data/projects.ts`): real year ranges for both projects — both currently
-  read `20XX` and nothing here should guess a date — and real names and one-line
-  summaries for all six workstreams, which currently render as
-  `TODO — workstream name` in both the homepage timeline and the `/projects`
-  card disclosures.
+  `src/pages/projects/eno.mdx` and `prometheus.mdx`): the narrative write-up
+  specifics each file's TODOs call out — propellants and target thrust/chamber
+  pressure, the specific cold-flow failure modes, confirmed program dates, the
+  design decisions Eno's data drove, and Prometheus's current build/test status.
+  Nothing here should guess at these.

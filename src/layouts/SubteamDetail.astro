@@ -82,15 +82,20 @@ const prose = Astro.slots.has("default")
       </div>
 
       <!-- The drawing is the subject here rather than a texture, so it gets a
-           lighter grade, no crop, and a caption instead of a scrim. -->
+           lighter grade, no crop, and a caption instead of a scrim. Capped to
+           a viewport-relative height rather than left at w-full h-auto: a
+           near-square plate (fluids, controls) at full column width would
+           otherwise render taller than the viewport on first scroll. -->
       <figure class="mt-14 md:mt-20">
-        <div class="border border-white/10 bg-white/[0.02] p-3 md:p-6">
+        <div
+          class="flex justify-center border border-white/10 bg-white/[0.02] p-3 md:p-6"
+        >
           <Image
             src={team.plate}
             alt={team.plateAlt}
             widths={[700, 1100, team.plate.width]}
             sizes="(min-width: 768px) 80vw, 100vw"
-            class="h-auto w-full"
+            class="h-auto max-h-[64vh] w-auto max-w-full"
             loading="eager"
           />
         </div>

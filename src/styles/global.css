@@ -171,3 +171,47 @@
   line-height: 1.6;
   color: var(--color-accent-peach);
 }
+
+/* A grouped unit — heading, prose, and its supporting figure — rather than
+   loose paragraphs separated only by whitespace. Opt-in per page (wrap the
+   sections that have a figure to anchor); the plain flowing rhythm above is
+   still what a page with no imagery falls back to. */
+.page-prose .content-block {
+  border: 1px solid rgb(255 255 255 / 0.08);
+  background: rgb(255 255 255 / 0.015);
+  padding: 1.75rem;
+}
+
+@media (min-width: 768px) {
+  .page-prose .content-block {
+    padding: 2.25rem;
+  }
+}
+
+.page-prose .content-block + .content-block {
+  margin-top: 2rem;
+}
+
+.page-prose .content-block > * + * {
+  margin-top: 1.25em;
+}
+
+/* The figure sits inside the block it illustrates, so it drops the outer
+   margin the old end-of-page gallery figure needed and takes its spacing
+   from the block's own rhythm instead. */
+.page-prose .block-figure {
+  margin: 0;
+}
+
+/* Two boards side by side reads as one comparison rather than two unrelated
+   photos — used for the V2.0 control/sampling split. */
+.page-prose .figure-pair {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .page-prose .figure-pair {
+    grid-template-columns: 1fr 1fr;
+  }
+}
